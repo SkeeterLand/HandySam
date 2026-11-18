@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* === Global element styles (migrated from globals.scss) === */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+body {
+  font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  color: var(--fg);
+  min-height: 100vh;
+  background:
+    var(--bg),
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(245, 158, 11, 0.15), transparent 60%);
+}
+
+/* === Links === */
+
+a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+/* === Footer === */
+
+footer {
+  padding: 40px 0;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  margin-top: 80px;
+}
+
+footer p {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* === Reduced Motion === */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* === Design Tokens (CSS custom properties) === */
+
+:root {
+  --accent: #f59e0b;
+  --accent-hover: #d97706;
+  --accent-light: #fbbf24;
+  --accent-text-bg: #111827;
+  --fg: #e8e8f0;
+  --muted: #6b6b80;
+  --bg: #0a0a0f;
+  --bg-secondary: #12121a;
+  --card: #1a1a24;
+  --border: #2a2a3a;
+}
