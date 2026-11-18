@@ -77,7 +77,7 @@ export const availableServices = services
 export const projects: Project[] = [
     {
         slug: 'bathroom-renovation',
-        src: '/images/bathroom/bathroom-01.jpg',
+        src: '/images/bathroom/bathroom-01.webp',
         alt: 'Bathroom renovation project',
         subject: 'Bathroom Renovation',
         description: 'Full remodel with new tiling, fixtures, and a walk-in shower.',
@@ -88,7 +88,7 @@ export const projects: Project[] = [
     },
     {
         slug: 'patio-renovation',
-        src: '/images/porch/screened/porch-01.jpg',
+        src: '/images/porch/screened/porch-01.webp',
         alt: 'Patio renovation work',
         subject: 'Patio Renovation',
         description: 'Changing an outdated patio into a screened-in outdoor living space.',
@@ -99,7 +99,7 @@ export const projects: Project[] = [
     },
     {
         slug: 'tongue-and-groove-ceiling',
-        src: '/images/ceiling/tongueNgroove/tongueNgroove-04.jpg',
+        src: '/images/ceiling/tongueNgroove/tongueNgroove-04.webp',
         alt: 'Tongue and groove ceiling project',
         subject: 'Tongue and Groove Ceiling',
         description: 'Installation of a tongue and groove ceiling for a refined interior look.',
@@ -110,7 +110,7 @@ export const projects: Project[] = [
     },
      {
         slug: 'office-renovation',
-        src: '/images/office/office-01.jpg',
+        src: '/images/office/office-01.webp',
         alt: 'Office renovation project',
         subject: 'Office Renovation',
         description: 'Complete office makeover with modern design and functional layout.',
@@ -121,7 +121,7 @@ export const projects: Project[] = [
     },
       {
         slug: 'coffered-ceiling',
-        src: '/images/ceiling/coffered/coffered-01.jpg',
+        src: '/images/ceiling/coffered/coffered-01.webp',
         alt: 'Coffered ceiling project',
         subject: 'Coffered Ceiling',
         description: 'Installation of a coffered ceiling for an elegant interior touch.',
