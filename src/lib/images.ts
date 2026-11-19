@@ -15,7 +15,8 @@ export function listProjectImages(folder: string): string[] {
         return [];
     }
 
-    const sourceExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif']);
+    // Scan for source images only (not .webp — we always prefer .webp when available).
+    const sourceExtensions = new Set(['.jpg', '.jpeg', '.png', '.gif', '.avif']);
 
     return fs
         .readdirSync(dirPath)
@@ -26,7 +27,7 @@ export function listProjectImages(folder: string): string[] {
         .sort()
         .map((file) => {
             // Prefer WebP version when available for faster load times
-            const base = file.replace(/\.(jpg|jpeg|png|webp|gif|avif)$/i, '');
+            const base = file.replace(/\.(jpg|jpeg|png|gif|avif)$/i, '');
             const webpFile = `${base}.webp`;
             const webpPath = path.join(dirPath, webpFile);
             if (fs.existsSync(webpPath)) {
