@@ -1,0 +1,93 @@
+{
+  "bathroom": [
+    "bathroom-01.webp",
+    "bathroom-02.webp",
+    "bathroom-03.webp",
+    "bathroom-04.webp",
+    "bathroom-05.webp",
+    "bathroom-06.webp",
+    "bathroom-07.webp",
+    "bathroom-08.webp",
+    "bathroom-09.webp",
+    "bathroom-10.webp",
+    "bathroom-11.webp",
+    "bathroom-12.webp",
+    "bathroom-13.webp"
+  ],
+  "ceiling/coffered": [
+    "coffered-01.webp",
+    "coffered-02.webp",
+    "coffered-03.webp",
+    "coffered-04.webp",
+    "coffered-05.webp",
+    "coffered-06.webp",
+    "coffered-07.webp",
+    "coffered-08.webp",
+    "coffered-09.webp",
+    "coffered-10.webp",
+    "coffered-11.webp",
+    "coffered-12.webp",
+    "coffered-13.webp",
+    "coffered-14.webp",
+    "coffered-15.webp",
+    "coffered-16.webp"
+  ],
+  "ceiling/tongueNgroove": [
+    "tongueNgroove-01.webp",
+    "tongueNgroove-02.webp",
+    "tongueNgroove-03.webp",
+    "tongueNgroove-04.webp"
+  ],
+  "office": [
+    "office-01.webp",
+    "office-02.webp",
+    "office-03.webp",
+    "office-04.webp",
+    "office-05.webp",
+    "office-06.webp",
+    "office-07.webp",
+    "office-08.webp",
+    "office-09.webp",
+    "office-10.webp",
+    "office-11.webp",
+    "office-12.webp",
+    "office-13.webp",
+    "office-14.webp",
+    "office-15.webp",
+    "office-16.webp",
+    "office-17.webp",
+    "office-18.webp",
+    "office-19.webp",
+    "office-20.webp",
+    "office-21.webp",
+    "office-22.webp",
+    "office-23.webp",
+    "office-24.webp"
+  ],
+  "other": [
+    "other-01.webp",
+    "other-02.webp",
+    "other-03.webp"
+  ],
+  "porch/screened": [
+    "porch-01.webp",
+    "porch-02.webp",
+    "porch-03.webp",
+    "porch-04.webp",
+    "porch-05.webp",
+    "porch-06.webp",
+    "porch-07.webp",
+    "porch-08.webp",
+    "porch-09.webp",
+    "porch-10.webp",
+    "porch-11.webp"
+  ],
+  "stairs": [
+    "stairs-01.webp",
+    "stairs-02.webp",
+    "stairs-03.webp",
+    "stairs-04.webp",
+    "stairs-05.webp",
+    "stairs-06.webp"
+  ]
+}
