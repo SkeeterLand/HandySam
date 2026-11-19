@@ -15,24 +15,34 @@ export function listProjectImages(folder: string): string[] {
         return [];
     }
 
-    // Scan for source images only (not .webp — we always prefer .webp when available).
-    const sourceExtensions = new Set(['.jpg', '.jpeg', '.png', '.gif', '.avif']);
+    const allExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.avif']);
 
-    return fs
-        .readdirSync(dirPath)
-        .filter((file) => {
-            const ext = path.extname(file).toLowerCase();
-            return sourceExtensions.has(ext);
-        })
-        .sort()
-        .map((file) => {
-            // Prefer WebP version when available for faster load times
-            const base = file.replace(/\.(jpg|jpeg|png|gif|avif)$/i, '');
-            const webpFile = `${base}.webp`;
-            const webpPath = path.join(dirPath, webpFile);
-            if (fs.existsSync(webpPath)) {
-                return `/${folder}/${webpFile}`.replace(/\\/g, '/');
-            }
-            return `/${folder}/${file}`.replace(/\\/g, '/');
-        });
+    // Collect all image files, grouped by base name. Prefer .webp when both exist
+    // (e.g. office-01.jpg + office-01.webp → only return the .webp).
+    const byBase = new Map<string, string>();
+    const files = fs.readdirSync(dirPath).filter((file) => {
+        const ext = path.extname(file).toLowerCase();
+        return allExtensions.has(ext);
+    });
+
+    // Sort so .webp comes before .jpg for the same base name (webp wins ties)
+    files.sort((a, b) => {
+        const aBase = a.replace(/\.[^/.]+$/, '');
+        const bBase = b.replace(/\.[^/.]+$/, '');
+        if (aBase !== bBase) return aBase.localeCompare(bBase);
+        const aIsWebp = a.endsWith('.webp') ? 0 : 1;
+        const bIsWebp = b.endsWith('.webp') ? 0 : 1;
+        return aIsWebp - bIsWebp;
+    });
+
+    for (const file of files) {
+        const base = file.replace(/\.[^/.]+$/, '');
+        if (!byBase.has(base)) {
+            byBase.set(base, file);
+        }
+    }
+
+    return [...byBase.values()].map((file) =>
+        `/${folder}/${file}`.replace(/\\/g, '/')
+    );
 }
