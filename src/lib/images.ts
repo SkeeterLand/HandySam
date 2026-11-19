@@ -10,5 +10,9 @@ import imageManifest from './image-manifest.json';
  * sorted alphabetically so the order is stable across builds.
  */
 export function listProjectImages(folder: string): string[] {
-    return (imageManifest as Record<string, string[]>)[folder] || [];
+    // imageFolder values like 'images/bathroom' — strip 'images/' prefix
+    // to match manifest keys like 'bathroom'
+    const key = folder.replace(/^images\//, '');
+    const images = (imageManifest as Record<string, string[]>)[key] || [];
+    return images.map((file) => `/${folder}/${file}`.replace(/\\/g, '/'));
 }
