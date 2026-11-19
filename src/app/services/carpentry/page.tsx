@@ -38,7 +38,7 @@ export default function CarpentryPage() {
           Why homeowners call me for the small jobs
         </h2>
         <div className="grid grid-cols-[repeat(auto-fit,minmax(240px,1fr))] gap-[20px]">
-          <div className="p-[26px]_p-[24px] border border-white/8 rounded-[16px] bg-white/2 transition-[border-color,transform] duration-200 group">
+          <div className="pt-[26px] px-[24px] pb-[24px] border border-white/8 rounded-[16px] bg-white/2 transition-[border-color,transform] duration-200 group">
             <span className="text-[22px] inline-block mb-[10px]">📐</span>
             <h3 className="text-[17px] font-bold mb-[8px] text-fg">Clean cuts, tight joints</h3>
             <p className="text-[14px] leading-1.65 text-muted">
@@ -46,7 +46,7 @@ export default function CarpentryPage() {
               caulk lines you can’t see. The details are the whole job.
             </p>
           </div>
-          <div className="p-[26px]_p-[24px] border border-white/8 rounded-[16px] bg-white/2 transition-[border-color,transform] duration-200 group">
+          <div className="pt-[26px] px-[24px] pb-[24px] border border-white/8 rounded-[16px] bg-white/2 transition-[border-color,transform] duration-200 group">
             <span className="text-[22px] inline-block mb-[10px]">🪵</span>
             <h3 className="text-[17px] font-bold mb-[8px] text-fg">Rot repaired, not covered up</h3>
             <p className="text-[14px] leading-1.65 text-muted">
@@ -54,7 +54,7 @@ export default function CarpentryPage() {
               and rebuild it so water stays out — not just paint over it.
             </p>
           </div>
-          <div className="p-[26px]_p-[24px] border border-white/8 rounded-[16px] bg-white/2 transition-[border-color,transform] duration-200 group">
+          <div className="pt-[26px] px-[24px] pb-[24px] border border-white/8 rounded-[16px] bg-white/2 transition-[border-color,transform] duration-200 group">
             <span className="text-[22px] inline-block mb-[10px]">🚪</span>
             <h3 className="text-[17px] font-bold mb-[8px] text-fg">Doors and windows that work</h3>
             <p className="text-[14px] leading-1.65 text-muted">
@@ -62,7 +62,7 @@ export default function CarpentryPage() {
               properly so they close right and stop leaking air.
             </p>
           </div>
-          <div className="p-[26px]_p-[24px] border border-white/8 rounded-[16px] bg-white/2 transition-[border-color,transform] duration-200 group">
+          <div className="pt-[26px] px-[24px] pb-[24px] border border-white/8 rounded-[16px] bg-white/2 transition-[border-color,transform] duration-200 group">
             <span className="text-[22px] inline-block mb-[10px]">🧰</span>
             <h3 className="text-[17px] font-bold mb-[8px] text-fg">No job too small</h3>
             <p className="text-[14px] leading-1.65 text-muted">
@@ -78,7 +78,7 @@ export default function CarpentryPage() {
         <h2 className="text-[clamp(26px,3.6vw,36px)] font-black tracking-[-0.8px] text-center mb-[36px] text-fg">
           What I take on
         </h2>
-        <ul className="list-none p-0 m-[0]_0_[18px] text-[16px] leading-2 text-fg text-left">
+        <ul className="list-none p-0 mx-0 my-[18px] text-[16px] leading-2 text-fg text-left">
           <li className="py-[6px] border-b border-white/6"><strong>Trim &amp; finish work:</strong> baseboards, crown, casing, window &amp; door trim</li>
           <li className="py-[6px] border-b border-white/6"><strong>Rot repair:</strong> sills, fascia, thresholds, exterior trim, deck boards</li>
           <li className="py-[6px] border-b border-white/6"><strong>Doors &amp; windows:</strong> hanging, adjusting, re-casing, weather sealing</li>
@@ -92,7 +92,7 @@ export default function CarpentryPage() {
       </div>
 
       {/* ---------- ASK ME ---------- */}
-      <div className="max-w-720 mx-auto mb-[80px] p-[40px]_p-[32px] text-center border border-accent/22 rounded-[20px] bg-[radial-gradient(circle_at_50%_0%,rgba(245,158,11,0.09),transparent_60%)] bg-[rgba(255,255,255,0.015)]">
+      <div className="max-w-720 mx-auto mb-[80px] pt-[40px] px-[32px] pb-[40px] text-center border border-accent/22 rounded-[20px] bg-[radial-gradient(circle_at_50%_0%,rgba(245,158,11,0.09),transparent_60%)] bg-[rgba(255,255,255,0.015)]">
         <p className="text-[12px] font-bold tracking-[0.14em] uppercase text-accent mb-[12px] block">
           Don’t see your project?
         </p>
@@ -122,7 +122,7 @@ export default function CarpentryPage() {
         <h2 className="text-[clamp(26px,3.6vw,36px)] font-black tracking-[-0.8px] text-center mb-[36px] text-fg">
           How it works
         </h2>
-        <ol className="list-none p-0 m-[0]_auto max-w-[640px] flex flex-col gap-[18px]">
+        <ol className="list-none p-0 mx-auto max-w-[640px] flex flex-col gap-[18px]">
           <li className="flex gap-[18px] items-flex-start p-[20px] border border-white/8 rounded-[14px] bg-white/1">
             <span className="shrink-0 w-[34px] h-[34px] rounded-full inline-flex items-center justify-center bg-[linear-gradient(135deg,var(--accent),var(--accent-light))] text-accent-text-bg font-black text-[15px]">1</span>
             <div>
@@ -159,30 +159,30 @@ export default function CarpentryPage() {
         <h2 className="text-[clamp(26px,3.6vw,36px)] font-black tracking-[-0.8px] text-center mb-[36px] text-fg">
           Common questions
         </h2>
-        <details className="border border-white/8 rounded-[12px] p-[16px]_p-[20px] mb-[10px] bg-white/1">
+        <details className="border border-white/8 rounded-[12px] pt-[16px] px-[20px] pb-[16px] mb-[10px] bg-white/1">
           <summary className="cursor-pointer font-bold text-[15px] text-fg list-none">Do you take on small jobs?</summary>
           <p className="mt-[12px] text-[14px] leading-1.7 text-muted">Yes — that’s most of what I do. One door, one trim run, one rotten sill. If it’s a real carpentry job, I’ll quote it.</p>
         </details>
-        <details className="border border-white/8 rounded-[12px] p-[16px]_p-[20px] mb-[10px] bg-white/1">
+        <details className="border border-white/8 rounded-[12px] pt-[16px] px-[20px] pb-[16px] mb-[10px] bg-white/1">
           <summary className="cursor-pointer font-bold text-[15px] text-fg list-none">Can you match existing trim?</summary>
           <p className="mt-[12px] text-[14px] leading-1.7 text-muted">In most cases, yes. I’ll match profile, size, and material as closely as possible, and paint or stain to blend in.</p>
         </details>
-        <details className="border border-white/8 rounded-[12px] p-[16px]_p-[20px] mb-[10px] bg-white/1">
+        <details className="border border-white/8 rounded-[12px] pt-[16px] px-[20px] pb-[16px] mb-[10px] bg-white/1">
           <summary className="cursor-pointer font-bold text-[15px] text-fg list-none">How do you handle rotten wood?</summary>
           <p className="mt-[12px] text-[14px] leading-1.7 text-muted">I cut out the damaged section, check what’s behind it, treat or replace as needed, then rebuild so water stays out. I don’t just cover it with filler and paint.</p>
         </details>
-        <details className="border border-white/8 rounded-[12px] p-[16px]_p-[20px] mb-[10px] bg-white/1">
+        <details className="border border-white/8 rounded-[12px] pt-[16px] px-[20px] pb-[16px] mb-[10px] bg-white/1">
           <summary className="cursor-pointer font-bold text-[15px] text-fg list-none">Do you do structural work?</summary>
           <p className="mt-[12px] text-[14px] leading-1.7 text-muted">No — I stick to finish carpentry, trim, rot repair, and small wood projects. If a job needs structural or engineering work, I’ll refer you to a licensed pro.</p>
         </details>
-        <details className="border border-white/8 rounded-[12px] p-[16px]_p-[20px] mb-[10px] bg-white/1">
+        <details className="border border-white/8 rounded-[12px] pt-[16px] px-[20px] pb-[16px] mb-[10px] bg-white/1">
           <summary className="cursor-pointer font-bold text-[15px] text-fg list-none">Do you supply the materials?</summary>
           <p className="mt-[12px] text-[14px] leading-1.7 text-muted">I can source trim, lumber, and hardware at cost, or work with materials you’ve already bought. We’ll decide at the quote.</p>
         </details>
       </div>
 
       {/* ---------- FINAL CTA ---------- */}
-      <div className="text-center p-[56px]_p-[24px] border border-accent/25 rounded-[20px] bg-[linear-gradient(180deg,rgba(245,158,11,0.06),rgba(245,158,11,0.02))] mb-[40px]">
+      <div className="text-center pt-[56px] px-[24px] pb-[40px] border border-accent/25 rounded-[20px] bg-[linear-gradient(180deg,rgba(245,158,11,0.06),rgba(245,158,11,0.02))] mb-[40px]">
         <h2 className="text-[clamp(26px,3.6vw,36px)] font-black tracking-[-0.8px] text-center mb-[36px] text-fg">
           Got a small job that’s been sitting on the list?
         </h2>
