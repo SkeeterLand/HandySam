@@ -47,6 +47,33 @@ export async function getServicesCollection() {
     return db.collection('services');
 }
 
+/**
+ * Find all services in the collection.
+ * Returns an array of ServiceDoc (or empty array if none).
+ */
+export async function findAllServices() {
+    const collection = await getServicesCollection();
+    return collection.find({}).sort({ value: 1 }).toArray();
+}
+
+/**
+ * Find a single service by its value field (e.g. 'carpentry', 'plumbing').
+ * Returns the ServiceDoc or null if not found.
+ */
+export async function findServiceByValue(value: string) {
+    const collection = await getServicesCollection();
+    return collection.findOne({ value });
+}
+
+/**
+ * Find services whose value field is in the given list.
+ * Useful for loading several service pages at once.
+ */
+export async function findServicesByValues(values: string[]) {
+    const collection = await getServicesCollection();
+    return collection.find({ value: { $in: values } }).sort({ value: 1 }).toArray();
+}
+
 export interface ServiceDoc extends ServiceContent {
     _id?: string;
     updatedAt?: Date;
