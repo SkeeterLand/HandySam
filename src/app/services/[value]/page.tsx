@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation';
-import { Button } from '@/components/ui/Button';
-import Banner from '../../components/Banner';
+import { Button } from '@/components/ui/Button'; 
 import { getServiceContent, getAllServiceValues } from '@/lib/services-data';
 
 export async function generateStaticParams() {
@@ -20,8 +19,7 @@ export default async function ServicePage({
     }
 
     return (
-        <>
-            <Banner />
+        <> 
             <section id={service.value} className="py-[80px] relative max-w-1100 mx-auto px-[24px]">
                 {/* ---------- HERO ---------- */}
                 <div className="text-center max-w-[760px] mx-auto mb-[72px]">
