@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 import ProjectGallery from '@/app/components/ProjectGallery';
 import type { ProjectGalleryHandle } from '@/app/components/ProjectGallery';
+import ServiceNav from '@/app/components/ServiceNav';
 
 interface ProjectPageClientProps {
   project: {
@@ -29,6 +30,7 @@ export default function ProjectPageClient({
 
     return (
         <>
+            <ServiceNav />
             <div className="mt-[8px] flex gap-[12px] justify-center flex-wrap">
                 <Button
                     variant="outline"
