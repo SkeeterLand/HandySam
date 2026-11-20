@@ -36,7 +36,7 @@ let clientPromise: Promise<MongoClient> | null = null;
 export function getMongoClient() {
     const { MongoClient } = require('mongodb');
     const uri = process.env.MONGODB_URI;
-    if (!uri) throw new Error('MONGODB_URI environment variable is not set');
+    if (!uri) return null; // missing during build; runtime has the encrypted var
     if (!clientPromise) {
         clientPromise = MongoClient.connect(uri);
     }
@@ -45,6 +45,7 @@ export function getMongoClient() {
 
 export async function getServicesCollection() {
     const client = await getMongoClient();
+    if (!client) return null;
     const db = client.db(process.env.MONGODB_DB || 'HandySam');
     return db.collection('services');
 }
@@ -57,6 +58,7 @@ export async function getServicesCollection() {
 export const findAllServices = unstable_cache(
     async () => {
         const collection = await getServicesCollection();
+        if (!collection) return [];
         return collection.find({}).sort({ value: 1 }).toArray();
     },
     ['all-services'],
@@ -65,10 +67,11 @@ export const findAllServices = unstable_cache(
 
 /**
  * Find a single service by its value field (e.g. 'carpentry', 'plumbing').
- * Returns the ServiceDoc or null if not found.
+ * Returns the ServiceDoc or null if not found (or DB unavailable).
  */
 export async function findServiceByValue(value: string) {
     const collection = await getServicesCollection();
+    if (!collection) return null;
     return collection.findOne({ value });
 }
 
@@ -78,6 +81,7 @@ export async function findServiceByValue(value: string) {
  */
 export async function findServicesByValues(values: string[]) {
     const collection = await getServicesCollection();
+    if (!collection) return [];
     return collection.find({ value: { $in: values } }).sort({ value: 1 }).toArray();
 }
 
