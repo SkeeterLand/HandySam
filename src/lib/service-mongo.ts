@@ -18,10 +18,11 @@ import type { ServiceContent } from './services-data';
  * Example usage (server-side only — do not import from client components):
  *
  *   import { getServicesCollection, serviceUpsert } from '@/lib/service-mongo';
- *   import { servicesData } from '@/lib/services-data';
+ *   import type { ServiceContent } from '@/lib/services-data';
  *
+ *   const services: ServiceContent[] = [];
  *   const collection = await getServicesCollection();
- *   for (const content of Object.values(servicesData)) {
+ *   for (const content of services) {
  *     await collection.updateOne(
  *       serviceUpsert(content.value, content).filter,
  *       serviceUpsert(content.value, content).update,
