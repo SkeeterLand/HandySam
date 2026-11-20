@@ -176,7 +176,7 @@ export default async function ServicePage({
                     {service.ctaDescription}
                 </p>
                 <div className="flex gap-[12px] justify-center flex-wrap mb-[18px]">
-                    <Button asChild variant="accent" size="sm" className="text-center text-[12px] font-bold tracking-[0.6px] uppercase hover:text-white shadow-[0_4px_12px_rgba(245,158,11,0.3)] hover:shadow-[0_8px_16px_rgba(245,158,11,0.4)] transition-all duration-200">
+                    <Button asChild variant="accent" size="sm" className="text-center text-[12px] font-bold tracking-[0.6px] uppercase hover:text-white!important shadow-[0_4px_12px_rgba(245,158,11,0.3)] hover:shadow-[0_8px_16px_rgba(245,158,11,0.4)] transition-all duration-200">
                         <a href="/contact">Get a Free Quote</a>
                     </Button>
                     <Button asChild variant="outline" size="sm">
