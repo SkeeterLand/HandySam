@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/Button'; 
 import { getServiceContent, getAllServiceValues } from '@/lib/services-data';
 
@@ -19,7 +20,12 @@ export default async function ServicePage({
     }
 
     return (
-        <> 
+        <>
+            <nav className="max-w-1100 mx-auto px-[24px] mb-[24px]">
+                <Link href="/" className="text-accent text-[13px] font-bold tracking-[0.1em] uppercase no-underline hover:text-accent/70 transition-color duration-200">
+                    ← Back to home
+                </Link>
+            </nav>
             <section id={service.value} className="py-[80px] relative max-w-1100 mx-auto px-[24px]">
                 {/* ---------- HERO ---------- */}
                 <div className="text-center max-w-[760px] mx-auto mb-[72px]">
