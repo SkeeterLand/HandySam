@@ -21,7 +21,7 @@ const About: React.FC = () => {
 
                 {/* NEW: origin/credibility paragraph */}
                 <p className="text-muted mb-20 leading-1.8 text-16">
-                    I've spent [X] years fixing, patching, mounting, and tightening the things that
+                    I've spent many years fixing, patching, mounting, and tightening the things that
                     make a house feel like it's falling apart a little at a time. I started Handy
                     Sam because I got tired of watching people get quoted three different prices
                     and wait a week for a guy who never shows. I do it differently: one person, one

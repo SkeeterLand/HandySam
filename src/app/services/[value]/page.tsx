@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
+import Banner from '../../components/Banner';
 import { getServiceContent, getAllServiceValues } from '@/lib/services-data';
 
 export async function generateStaticParams() {
@@ -19,33 +20,35 @@ export default async function ServicePage({
     }
 
     return (
-        <section id={service.value} className="py-[80px] relative max-w-1100 mx-auto px-[24px]">
-            {/* ---------- HERO ---------- */}
-            <div className="text-center max-w-[760px] mx-auto mb-[72px]">
-                <p className="text-[12px] font-bold tracking-[0.14em] uppercase text-accent mb-[14px] block">
-                    {service.tagline}
-                </p>
-                <h1 className="text-[clamp(34px,5vw,52px)] font-black tracking-[-1.5px] leading-1.1 mb-[20px] text-fg">
-                    {service.heroTitle}{' '}
-                    <span className="bg-[linear-gradient(135deg,var(--accent),var(--accent-light))] bg-clip-text text-transparent">
-                        {service.heroHighlight}
-                    </span>
-                </h1>
-                <p className="text-[18px] text-muted leading-1.7 mb-[28px]">
-                    {service.heroDescription}
-                </p>
-                <div className="flex gap-[12px] justify-center flex-wrap mb-[18px]">
-                    <Button asChild variant="accent" size="sm" className="text-center text-[12px] font-bold tracking-[0.6px] uppercase hover:text-white shadow-[0_4px_12px_rgba(245,158,11,0.3)] hover:shadow-[0_8px_16px_rgba(245,158,11,0.4)] transition-all duration-200">
-                        <a href="/contact">Get a Free Quote</a>
-                    </Button>
-                    <Button asChild variant="outline" size="sm">
-                        <a href="tel:9016748876">Call Sam · 901-674-8876</a>
-                    </Button>
+        <>
+            <Banner />
+            <section id={service.value} className="py-[80px] relative max-w-1100 mx-auto px-[24px]">
+                {/* ---------- HERO ---------- */}
+                <div className="text-center max-w-[760px] mx-auto mb-[72px]">
+                    <p className="text-[12px] font-bold tracking-[0.14em] uppercase text-accent mb-[14px] block">
+                        {service.tagline}
+                    </p>
+                    <h1 className="text-[clamp(34px,5vw,52px)] font-black tracking-[-1.5px] leading-1.1 mb-[20px] text-fg">
+                        {service.heroTitle}{' '}
+                        <span className="bg-[linear-gradient(135deg,var(--accent),var(--accent-light))] bg-clip-text text-transparent">
+                            {service.heroHighlight}
+                        </span>
+                    </h1>
+                    <p className="text-[18px] text-muted leading-1.7 mb-[28px]">
+                        {service.heroDescription}
+                    </p>
+                    <div className="flex gap-[12px] justify-center flex-wrap mb-[18px]">
+                        <Button asChild variant="accent" size="sm" className="text-center text-[12px] font-bold tracking-[0.6px] uppercase hover:text-white shadow-[0_4px_12px_rgba(245,158,11,0.3)] hover:shadow-[0_8px_16px_rgba(245,158,11,0.4)] transition-all duration-200">
+                            <a href="/contact">Get a Free Quote</a>
+                        </Button>
+                        <Button asChild variant="outline" size="sm">
+                            <a href="tel:9016748876">Call Sam · 901-674-8876</a>
+                        </Button>
+                    </div>
+                    <p className="text-[13px] text-muted tracking-[0.02em]">
+                        {service.heroFooter}
+                    </p>
                 </div>
-                <p className="text-[13px] text-muted tracking-[0.02em]">
-                    {service.heroFooter}
-                </p>
-            </div>
 
             {/* ---------- BENEFITS ---------- */}
             <div className="mb-[80px]">
@@ -185,5 +188,6 @@ export default async function ServicePage({
                 </div>
             </div>
         </section>
+        </>
     );
 }
