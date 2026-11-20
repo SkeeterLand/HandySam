@@ -26,6 +26,8 @@ export interface ServiceContent {
     ctaDescription: string;
 }
 
+import { findAllServices, findServiceByValue } from './service-mongo';
+
 export const servicesData: Record<string, ServiceContent> = {
     carpentry: {
         value: 'carpentry',
@@ -657,10 +659,22 @@ export const servicesData: Record<string, ServiceContent> = {
     },
 };
 
-export function getServiceContent(value: string): ServiceContent | undefined {
+export async function getServiceContent(value: string): Promise<ServiceContent | undefined> {
+    try {
+        const fromDb = await findServiceByValue(value);
+        if (fromDb) return fromDb as unknown as ServiceContent;
+    } catch {
+        // MongoDB unavailable — fall back to static data below
+    }
     return servicesData[value];
 }
 
-export function getAllServiceValues(): string[] {
+export async function getAllServiceValues(): Promise<string[]> {
+    try {
+        const fromDb = await findAllServices();
+        return fromDb.map((s) => s.value);
+    } catch {
+        // MongoDB unavailable — fall back to static data below
+    }
     return Object.keys(servicesData);
 }

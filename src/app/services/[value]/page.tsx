@@ -4,7 +4,8 @@ import { getServiceContent, getAllServiceValues } from '@/lib/services-data';
 import ServiceNav from '../../components/ServiceNav';
 
 export async function generateStaticParams() {
-    return getAllServiceValues().map((value) => ({ value }));
+    const values = await getAllServiceValues();
+    return values.map((value) => ({ value }));
 }
 
 export default async function ServicePage({
@@ -13,7 +14,7 @@ export default async function ServicePage({
     params: Promise<{ value: string }>;
 }) {
     const { value } = await params;
-    const service = getServiceContent(value);
+    const service = await getServiceContent(value);
 
     if (!service) {
         notFound();
