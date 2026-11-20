@@ -7,7 +7,8 @@ export async function GET() {
         return NextResponse.json({
             success: true,
             count: services.length,
-            services: services.map((s) => ({ value: s.value, title: s.title })),
+           // services: services.map((s) => ({ value: s.value, title: s.title })),
+           services: services
         });
     } catch (error) {
         return NextResponse.json(
