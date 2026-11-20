@@ -1,7 +1,6 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 import { cn } from '@/lib/utils';
 
 type NavIconName = 'home' | 'services' | 'projects' | 'about' | 'contact' | 'phone';
@@ -74,11 +73,11 @@ const NavigationIcon: React.FC<{ type: NavIconName }> = ({ type }) => {
 };
 
 const navItems = [
-    { id: 'home', label: 'Home', href: '/', icon: 'home' as const },
-    { id: 'services', label: 'Services', href: '/', icon: 'services' as const },
-    { id: 'projects', label: 'Gallery', href: '/', icon: 'projects' as const },
-    { id: 'about', label: 'About', href: '/', icon: 'about' as const },
-    { id: 'contact', label: 'Contact', href: '/contact', icon: 'contact' as const },
+    { id: 'home', label: 'Home', href: '/#home', icon: 'home' as const },
+    { id: 'services', label: 'Services', href: '/#services', icon: 'services' as const },
+    { id: 'projects', label: 'Gallery', href: '/#projects', icon: 'projects' as const },
+    { id: 'about', label: 'About', href: '/#about', icon: 'about' as const },
+    { id: 'contact', label: 'Contact', href: '/#contact', icon: 'contact' as const },
 ];
 
 export default function ServiceNav() {
@@ -87,15 +86,15 @@ export default function ServiceNav() {
 
     const isActive = (id: string) => {
         if (id === 'services' && isOnServicePage) return true;
-        return pathname === '/' && id === 'home';
+        return false;
     };
 
     return (
         <nav
             className={cn(
                 'sticky top-0 z-50 flex justify-center items-center w-full h-[5.4rem] px-5',
-                'bg-[#0a0a0f]/97 border-b border-white/8',
-                'backdrop-blur-md shadow-[0_10px_30px_rgba(0,0,0,0.35)]'
+                'bg-[#0a0a0f] border-b border-white/8',
+                'shadow-[0_10px_30px_rgba(0,0,0,0.35)]'
             )}
             aria-label="Primary"
         >
@@ -113,7 +112,7 @@ export default function ServiceNav() {
                     const active = isActive(item.id);
                     return (
                         <li key={item.id}>
-                            <Link
+                            <a
                                 href={item.href}
                                 className={cn(
                                     'relative inline-flex items-center gap-[0.45rem] py-[0.55rem] px-[0.9rem] border border-white/9 rounded-full bg-white/1.5 text-white/76 no-underline text-[0.72rem] font-semibold tracking-[0.09em] uppercase',
@@ -128,11 +127,19 @@ export default function ServiceNav() {
                                     <NavigationIcon type={item.icon} />
                                 </span>
                                 {item.label}
-                            </Link>
+                            </a>
                         </li>
                     );
                 })}
             </ul>
+
+            <div className={cn(
+                'absolute right-[1.25rem] top-1/2 -translate-y-1/2',
+                'text-[1.02rem] font-black text-fg tracking-[-0.04em]',
+                'pointer-events-none'
+            )}>
+                Handy Sam
+            </div>
         </nav>
     );
 }
