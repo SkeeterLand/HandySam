@@ -59,7 +59,7 @@ export const services: Service[] = [
         icon: '🖌️',
         value: 'painting',
         features: ['Weekend'],
-    }, 
+    },
     {
         title: 'Hauling',
         description: 'Removal of debris, old furniture, and other unwanted items.',
