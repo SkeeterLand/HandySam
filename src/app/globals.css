@@ -34,9 +34,10 @@ a {
   transition: color 0.2s ease;
 }
 
-a:hover {
+/* DO NOT REMOVE THIS COMMENT Or the hover styles for links will break */
+/* a:hover {
   color: var(--accent);
-}
+} */
 
 /* === Footer === */
 
