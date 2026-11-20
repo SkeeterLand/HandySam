@@ -30,12 +30,7 @@ export default function ProjectPageClient({
     return (
         <> 
             <div className="mt-[8px] flex gap-[12px] justify-end flex-wrap">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => galleryRef.current?.openLightbox()}
-                    className="text-accent border-accent/40 hover:border-accent hover:text-fg"
-                >
+                <Button variant="outline" size="sm" onClick={() => galleryRef.current?.openLightbox()}>
                     View gallery
                 </Button>
                 {/* <Button asChild variant="gradient" size="sm">
