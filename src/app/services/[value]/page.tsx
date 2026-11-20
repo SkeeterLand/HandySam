@@ -1,4 +1,3 @@
-import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { getServiceContent, getAllServiceValues } from '@/lib/services-data';
 import ServiceNav from '../../components/ServiceNav';
@@ -13,11 +12,20 @@ export default async function ServicePage({
 }: {
     params: Promise<{ value: string }>;
 }) {
-    const { value } = await params;
+    const { value } = await params; 
     const service = await getServiceContent(value);
 
     if (!service) {
-        notFound();
+        return (
+            <section className="py-[80px] relative max-w-1100 mx-auto px-[24px] text-center">
+                <h1 className="text-[clamp(34px,5vw,52px)] font-black tracking-[-1.5px] leading-1.1 mb-[20px] text-fg">
+                    Service unavailable
+                </h1>
+                <p className="text-[18px] text-muted leading-1.7 mb-[28px]">
+                    The service data could not be loaded at this time.
+                </p>
+            </section>
+        );
     }
 
     return (
