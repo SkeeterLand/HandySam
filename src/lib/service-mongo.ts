@@ -1,4 +1,5 @@
 import type { MongoClient } from 'mongodb';
+import { unstable_cache } from 'next/cache';
 import type { ServiceContent } from './services-data';
 
 /**
@@ -49,12 +50,17 @@ export async function getServicesCollection() {
 
 /**
  * Find all services in the collection.
- * Returns an array of ServiceDoc (or empty array if none).
+ * Wrapped with Next.js unstable_cache so only one DB call is made per
+ * revalidate period. Returns an array of ServiceDoc (or empty array if none).
  */
-export async function findAllServices() {
-    const collection = await getServicesCollection();
-    return collection.find({}).sort({ value: 1 }).toArray();
-}
+export const findAllServices = unstable_cache(
+    async () => {
+        const collection = await getServicesCollection();
+        return collection.find({}).sort({ value: 1 }).toArray();
+    },
+    ['all-services'],
+    { revalidate: 60 } // seconds before re-fetching from MongoDB
+);
 
 /**
  * Find a single service by its value field (e.g. 'carpentry', 'plumbing').
