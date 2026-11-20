@@ -201,12 +201,10 @@ const Banner: React.FC = () => {
                     </h1>
                     <p className="m-[0.75rem]_auto_0 max-w-[560px] text-[clamp(0.92rem,1.4vw,1.1rem)] text-[rgba(232,232,240,0.82)] leading-1.6">
                         Quality repairs, upgrades, and honest work for the way you live.
-                    </p>
-                    <Button asChild variant="accent" size="sm" className="flex-1 sm:flex-none sm:min-w-[140px] text-center text-[12px] font-bold tracking-[0.6px] uppercase rounded-full hover:text-white!important shadow-[0_4px_12px_rgba(245,158,11,0.3)] hover:shadow-[0_8px_16px_rgba(245,158,11,0.4)] transition-all duration-200">
+                    </p> 
+                    <Button asChild variant="accent" size="sm" className="flex-1 sm:flex-none sm:min-w-[140px] text-center text-[12px] font-bold tracking-[0.6px] uppercase mt-[1.25rem] rounded-full hover:text-white!important shadow-[0_4px_12px_rgba(245,158,11,0.3)] hover:shadow-[0_8px_16px_rgba(245,158,11,0.4)] transition-all duration-200">
                        <a href="#contact">Get a free quote</a>
-                    </Button>
-                    
-                  
+                    </Button> 
                 </div>
             </section>
 
