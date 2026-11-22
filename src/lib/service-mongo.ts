@@ -163,7 +163,7 @@ export async function getHomepageServices(): Promise<HomepageService[]> {
         icon: doc.benefits[0]?.icon || '🔧',
         learnMoreLink: `/services/${doc.value}`,
         value: doc.value,
-        features: doc.benefits.map((b: { title: string }) => b.title),
+        features: doc.features,
     }));
 }
 
