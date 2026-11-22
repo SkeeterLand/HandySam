@@ -147,17 +147,22 @@ export interface HomepageService {
  * Fetch all services from MongoDB and map them to the shape used by the
  * homepage Services carousel. Returns an empty array if MongoDB is
  * unavailable (e.g. during build).
+ * Strips MongoDB _id so plain objects are passed to Client Components.
  */
 export async function getHomepageServices(): Promise<HomepageService[]> {
     const docs = await findAllServices();
-    return docs.map((doc) => ({
-        title: doc.title,
-        description: doc.description,
-        icon: doc.benefits[0]?.icon || '🔧',
-        learnMoreLink: `/services/${doc.value}`,
-        value: doc.value,
-        features: doc.features,
-    }));
+    return docs.map((doc) => {
+        const { _id, ...rest } = doc;
+        return {
+            ...rest,
+            title: rest.title,
+            description: rest.description,
+            icon: rest.benefits[0]?.icon || '🔧',
+            learnMoreLink: `/services/${rest.value}`,
+            value: rest.value,
+            features: rest.benefits.map((b: { title: string }) => b.title),
+        };
+    });
 }
 
 /**
@@ -187,21 +192,30 @@ export interface HomepageProject {
 /**
  * Fetch all projects from the MongoDB 'project' collection.
  * Returns an empty array if MongoDB is unavailable (e.g. during build).
+ * Strips MongoDB _id so plain objects are passed to Client Components.
  */
 export async function getHomepageProjects(): Promise<HomepageProject[]> {
     const collection = await getCollection('project');
     if (!collection) return [];
-    return (await collection.find({}).sort({ subject: 1 }).toArray()) as unknown as HomepageProject[];
+    const docs = await collection.find({}).sort({ subject: 1 }).toArray();
+    return docs.map((doc) => {
+        const { _id, ...rest } = doc;
+        return rest as unknown as HomepageProject;
+    });
 }
 
 /**
  * Fetch a single project by slug from the MongoDB 'project' collection.
  * Returns null if not found (or DB unavailable).
+ * Strips MongoDB _id so plain objects are passed to Client Components.
  */
 export async function getProjectBySlug(slug: string): Promise<HomepageProject | null> {
     const collection = await getCollection('project');
     if (!collection) return null;
-    return (await collection.findOne({ slug })) as unknown as HomepageProject | null;
+    const doc = await collection.findOne({ slug });
+    if (!doc) return null;
+    const { _id, ...rest } = doc;
+    return rest as unknown as HomepageProject;
 }
 
 export interface ServiceDoc extends ServiceContent {
