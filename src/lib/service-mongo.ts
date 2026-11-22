@@ -1,9 +1,8 @@
 import type { MongoClient } from 'mongodb';
 import { unstable_cache } from 'next/cache';
-import type { ServiceContent } from './services-data';
 
 /**
- * MongoDB Atlas connection and update syntax for service data.
+ * MongoDB Atlas data layer for HandySam.
  *
  * Environment variables (set in Cloudflare Pages dashboard → Settings →
  * Environment variables → Production, encrypted):
@@ -18,9 +17,8 @@ import type { ServiceContent } from './services-data';
  * Example usage (server-side only — do not import from client components):
  *
  *   import { getServicesCollection, serviceUpsert } from '@/lib/service-mongo';
- *   import type { ServiceContent } from '@/lib/services-data';
  *
- *   const services: ServiceContent[] = [];
+ *   const services: ServiceContent[] = []; // your service data here
  *   const collection = await getServicesCollection();
  *   for (const content of services) {
  *     await collection.updateOne(
@@ -30,6 +28,34 @@ import type { ServiceContent } from './services-data';
  *     );
  *   }
  */
+
+export interface ServiceContent {
+    value: string;
+    title: string;
+    tagline: string;
+    heroTitle: string;
+    heroHighlight: string;
+    heroDescription: string;
+    heroFooter: string;
+    benefitsTitle: string;
+    benefits: Array<{
+        icon: string;
+        title: string;
+        description: string;
+    }>;
+    scopeTitle: string;
+    scopeItems: Array<{ label: string; items: string }>;
+    scopeFooter: string;
+    askTitle: string;
+    askSubtitle: string;
+    askDescription: string;
+    processTitle: string;
+    processSteps: Array<{ title: string; description: string }>;
+    faqTitle: string;
+    faqs: Array<{ question: string; answer: string }>;
+    ctaTitle: string;
+    ctaDescription: string;
+}
 
 let clientPromise: Promise<MongoClient> | null = null;
 
@@ -43,14 +69,14 @@ export function getMongoClient() {
     return clientPromise!;
 }
 
-export async function getServicesCollection() {
-    return getCollection('services');
-}
-
 export async function getCollection(name: string) {
     const client = await getMongoClient();
     if (!client) return null;
     return client.db(process.env.MONGODB_DB || 'HandySam').collection(name);
+}
+
+export async function getServicesCollection() {
+    return getCollection('services');
 }
 
 /**
@@ -76,6 +102,24 @@ export async function findServiceByValue(value: string) {
     const collection = await getServicesCollection();
     if (!collection) return null;
     return collection.findOne({ value });
+}
+
+/**
+ * Get service content by value. Used by dynamic service pages.
+ * Returns undefined if not found (or DB unavailable).
+ */
+export async function getServiceContent(value: string): Promise<ServiceContent | undefined> {
+    const fromDb = await findServiceByValue(value);
+    return fromDb ? (fromDb as unknown as ServiceContent) : undefined;
+}
+
+/**
+ * Get all service values. Used by generateStaticParams for service pages.
+ * Returns an empty array if MongoDB is unavailable (e.g. during build).
+ */
+export async function getAllServiceValues(): Promise<string[]> {
+    const fromDb = await findAllServices();
+    return fromDb.map((s) => s.value);
 }
 
 /**

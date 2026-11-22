@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/Button';
-import { getServiceContent, getAllServiceValues } from '@/lib/services-data';
+import { getServiceContent, getAllServiceValues } from '@/lib/service-mongo';
 import ServiceNav from '../../components/ServiceNav';
 
 export async function generateStaticParams() {
