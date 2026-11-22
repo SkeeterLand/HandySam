@@ -14,7 +14,7 @@ import {
     ChevronLeft,
     ChevronRight,
     CheckIcon,
-} from '@/app/components/services/icons';
+} from '@/app/components/icons';
 
 const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
     carpentry: HammerIcon,
