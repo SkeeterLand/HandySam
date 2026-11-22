@@ -88,7 +88,11 @@ export const findAllServices = unstable_cache(
     async () => {
         const collection = await getServicesCollection();
         if (!collection) return [];
-        return collection.find({}).sort({ value: 1 }).toArray();
+        const docs = await collection.find({}).sort({ value: 1 }).toArray();
+        return docs.map((doc) => {
+            const { _id, ...rest } = doc;
+            return rest;
+        });
     },
     ['all-services'],
     { revalidate: 60 } // seconds before re-fetching from MongoDB
@@ -110,7 +114,9 @@ export async function findServiceByValue(value: string) {
  */
 export async function getServiceContent(value: string): Promise<ServiceContent | undefined> {
     const fromDb = await findServiceByValue(value);
-    return fromDb ? (fromDb as unknown as ServiceContent) : undefined;
+    if (!fromDb) return undefined;
+    const { _id, ...rest } = fromDb;
+    return rest as unknown as ServiceContent;
 }
 
 /**
@@ -151,18 +157,14 @@ export interface HomepageService {
  */
 export async function getHomepageServices(): Promise<HomepageService[]> {
     const docs = await findAllServices();
-    return docs.map((doc) => {
-        const { _id, ...rest } = doc;
-        return {
-            ...rest,
-            title: rest.title,
-            description: rest.description,
-            icon: rest.benefits[0]?.icon || '🔧',
-            learnMoreLink: `/services/${rest.value}`,
-            value: rest.value,
-            features: rest.benefits.map((b: { title: string }) => b.title),
-        };
-    });
+    return docs.map((doc) => ({
+        title: doc.title,
+        description: doc.description,
+        icon: doc.benefits[0]?.icon || '🔧',
+        learnMoreLink: `/services/${doc.value}`,
+        value: doc.value,
+        features: doc.benefits.map((b: { title: string }) => b.title),
+    }));
 }
 
 /**
