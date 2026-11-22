@@ -44,10 +44,13 @@ export function getMongoClient() {
 }
 
 export async function getServicesCollection() {
+    return getCollection('services');
+}
+
+export async function getCollection(name: string) {
     const client = await getMongoClient();
     if (!client) return null;
-    const db = client.db(process.env.MONGODB_DB || 'HandySam');
-    return db.collection('services');
+    return client.db(process.env.MONGODB_DB || 'HandySam').collection(name);
 }
 
 /**
@@ -105,11 +108,11 @@ export async function getHomepageServices(): Promise<HomepageService[]> {
     const docs = await findAllServices();
     return docs.map((doc) => ({
         title: doc.title,
-        description: doc.heroDescription,
+        description: doc.description,
         icon: doc.benefits[0]?.icon || '🔧',
         learnMoreLink: `/services/${doc.value}`,
         value: doc.value,
-        features: doc.benefits.map((b: { title: string }) => b.title),
+        features: doc.features,
     }));
 }
 
@@ -121,6 +124,40 @@ export async function getHomepageServices(): Promise<HomepageService[]> {
 export async function getAvailableServiceTitles(): Promise<string[]> {
     const docs = await findAllServices();
     return docs.map((doc) => doc.title).sort((a: string, b: string) => a.localeCompare(b));
+}
+
+/* ---------------- project helpers (MongoDB 'project' collection) ---------------- */
+
+export interface HomepageProject {
+    slug: string;
+    src: string;
+    alt: string;
+    subject: string;
+    description: string;
+    services: string[];
+    location: string;
+    year: string;
+    imageFolder: string;
+}
+
+/**
+ * Fetch all projects from the MongoDB 'project' collection.
+ * Returns an empty array if MongoDB is unavailable (e.g. during build).
+ */
+export async function getHomepageProjects(): Promise<HomepageProject[]> {
+    const collection = await getCollection('project');
+    if (!collection) return [];
+    return (await collection.find({}).sort({ subject: 1 }).toArray()) as unknown as HomepageProject[];
+}
+
+/**
+ * Fetch a single project by slug from the MongoDB 'project' collection.
+ * Returns null if not found (or DB unavailable).
+ */
+export async function getProjectBySlug(slug: string): Promise<HomepageProject | null> {
+    const collection = await getCollection('project');
+    if (!collection) return null;
+    return (await collection.findOne({ slug })) as unknown as HomepageProject | null;
 }
 
 export interface ServiceDoc extends ServiceContent {

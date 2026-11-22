@@ -1,12 +1,13 @@
 import { notFound } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { projects } from '@/lib/data';
+import { getProjectBySlug, getHomepageProjects } from '@/lib/service-mongo';
 import { listProjectImages } from '@/lib/images';
 import ProjectPageClient from '@/app/projects/ProjectPageClient';
 import ServiceNav from '@/app/components/ServiceNav';
 
 export async function generateStaticParams() {
+    const projects = await getHomepageProjects();
     return projects.map((project) => ({ slug: project.slug }));
 }
 
@@ -16,7 +17,7 @@ export default async function ProjectPage({
     params: Promise<{ slug: string }>;
 }) {
     const { slug } = await params;
-    const project = projects.find((p) => p.slug === slug);
+    const project = await getProjectBySlug(slug);
 
     if (!project) {
         notFound();

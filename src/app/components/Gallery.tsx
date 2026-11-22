@@ -4,10 +4,14 @@ import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import Image from 'next/image';
-import { projects } from '@/lib/data';
+import type { HomepageProject } from '@/lib/service-mongo';
 import { Button } from '@/components/ui/Button';
 
-export default function Gallery() {
+interface GalleryProps {
+    projects: HomepageProject[];
+}
+
+export default function Gallery({ projects }: GalleryProps) {
     const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
     const [headerVisible, setHeaderVisible] = useState(false);
 
