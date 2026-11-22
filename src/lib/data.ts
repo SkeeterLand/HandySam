@@ -19,61 +19,6 @@ export interface Project {
     imageFolder: string;
 }
 
-export const services: Service[] = [
-    {
-        title: 'Plumbing',
-        description: 'Fix leaks, replace fixtures, toilet installation, garbage disposal installation, and more.',
-        learnMoreLink: '/services/plumbing',
-        icon: '🔧',
-        value: 'plumbing',
-        features: ['Small Jobs','Weekend'],
-    },
-    {
-        title: 'General Repairs',
-        description: 'Reliable repairs and maintenance for every corner of your home.',
-        learnMoreLink: '/services/general-repairs',
-        icon: '🛠️',
-        value: 'general-repairs',
-        features: ['Handyman'],
-    },
-    {
-        title: 'Electrical',
-        description: 'Replace outlets,fixtures, ceiling fans, and more.',
-        learnMoreLink: '/services/electrical',
-        icon: '💡',
-        value: 'electrical',
-        features: ['Weekend'],
-    },
-    {
-        title: 'Carpentry',
-        description: 'Flooring installation, cabinetry, framing, custom woodwork.',
-        learnMoreLink: '/services/carpentry',
-        icon: '🪚',
-        value: 'carpentry',
-        features: ['Weekend'],
-    },
-    {
-        title: 'Painting & Finishing',
-        description: 'Room paint jobs, trim work, and flawless interior & exterior finishes.',
-        learnMoreLink: '/services/painting',
-        icon: '🖌️',
-        value: 'painting',
-        features: ['Weekend'],
-    },
-    {
-        title: 'Hauling',
-        description: 'Removal of debris, old furniture, and other unwanted items.',
-        learnMoreLink: '/services/hauling',
-        icon: '🚛',
-        value: 'hauling',
-        features: ['Weekend'],
-    },
-];
-
-export const availableServices = services
-    .map(service => service.title)
-    .sort((a, b) => a.localeCompare(b));
-
 export const projects: Project[] = [
     {
         slug: 'bathroom-renovation',

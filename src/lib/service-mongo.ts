@@ -85,6 +85,44 @@ export async function findServicesByValues(values: string[]) {
     return collection.find({ value: { $in: values } }).sort({ value: 1 }).toArray();
 }
 
+/* ---------------- homepage helpers (map MongoDB docs to UI shapes) ---------------- */
+
+export interface HomepageService {
+    title: string;
+    description: string;
+    icon: string;
+    learnMoreLink: string;
+    value: string;
+    features: string[];
+}
+
+/**
+ * Fetch all services from MongoDB and map them to the shape used by the
+ * homepage Services carousel. Returns an empty array if MongoDB is
+ * unavailable (e.g. during build).
+ */
+export async function getHomepageServices(): Promise<HomepageService[]> {
+    const docs = await findAllServices();
+    return docs.map((doc) => ({
+        title: doc.title,
+        description: doc.heroDescription,
+        icon: doc.benefits[0]?.icon || '🔧',
+        learnMoreLink: `/services/${doc.value}`,
+        value: doc.value,
+        features: doc.benefits.map((b: { title: string }) => b.title),
+    }));
+}
+
+/**
+ * Fetch all service titles from MongoDB, sorted alphabetically.
+ * Used by the Contact form dropdown. Returns an empty array if MongoDB
+ * is unavailable.
+ */
+export async function getAvailableServiceTitles(): Promise<string[]> {
+    const docs = await findAllServices();
+    return docs.map((doc) => doc.title).sort((a: string, b: string) => a.localeCompare(b));
+}
+
 export interface ServiceDoc extends ServiceContent {
     _id?: string;
     updatedAt?: Date;

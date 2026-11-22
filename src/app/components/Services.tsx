@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { services } from '@/lib/data';
 import { Button } from '@/components/ui/Button';
+import type { HomepageService } from '@/lib/service-mongo';
 import {
     HammerIcon,
     PaintRollerIcon,
@@ -29,6 +29,10 @@ const ServiceIcon = ({ value, className }: { value: string; className?: string }
     const Comp = ICON_MAP[value] || HammerIcon;
     return <Comp className={className} />;
 };
+
+interface ServicesProps {
+    services: HomepageService[];
+}
 
 /* ---------- Hook: prefers-reduced-motion ---------- */
 
@@ -62,7 +66,7 @@ function computeCardWidth(stripWidth: number): number {
 
 /* ---------- Component ---------- */
 
-export default function Services() {
+export default function Services({ services }: ServicesProps) {
     const [headerVisible, setHeaderVisible] = useState(false);
     const [cardsVisible, setCardsVisible] = useState(false);
     const [showBio, setShowBio] = useState(true);

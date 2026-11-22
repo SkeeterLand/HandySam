@@ -1,12 +1,15 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { availableServices } from '@/lib/data';
 import { useActionState } from 'react';
 import { sendContactForm } from '@/app/actions/contact';
 import { Button } from '@/components/ui/Button';
 
-export default function Contact() {
+interface ContactProps {
+    availableServices: string[];
+}
+
+export default function Contact({ availableServices }: ContactProps) {
     const [state] = useActionState(sendContactForm, { ok: false });
 
     return (
