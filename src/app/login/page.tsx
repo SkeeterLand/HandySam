@@ -1,3 +1,5 @@
+'use client';
+
 import Link from 'next/link';
 import { useActionState, useState } from 'react';
 import { adminLogin } from '@/app/admin/actions';
