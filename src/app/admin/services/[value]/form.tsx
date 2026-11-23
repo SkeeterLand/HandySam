@@ -55,7 +55,34 @@ export default function ServiceEditForm({
 }: ServiceEditFormProps) {
   const [state, formAction, isPending] = useActionState(saveService, null);
   const router = useRouter();
-  const { markDirty, clearDirty, dirty } = useDirty();
+
+  return (
+    <DirtyContextProvider isPending={isPending}>
+      <InnerForm
+        state={state}
+        formAction={formAction}
+        router={router}
+        service={service}
+        isNew={isNew}
+      />
+    </DirtyContextProvider>
+  );
+}
+
+function InnerForm({
+  state,
+  formAction,
+  router,
+  service,
+  isNew,
+}: {
+  state: { ok: boolean; error: string | null } | null;
+  formAction: (formData: FormData) => void;
+  router: ReturnType<typeof useRouter>;
+  service: ServiceContent | null;
+  isNew: boolean;
+}) {
+  const { clearDirty, dirty } = useDirty();
 
   useEffect(() => {
     if (state?.ok) {
@@ -71,8 +98,7 @@ export default function ServiceEditForm({
   );
 
   return (
-    <DirtyContextProvider isPending={isPending}>
-      <div className="space-y-[32px]">
+    <div className="space-y-[32px]">
         <div className="flex items-center justify-between">
           <h1 className="text-[32px] font-black tracking[-1px] text-fg">
             {isNew ? 'Add Service' : 'Edit Service'}
@@ -212,11 +238,10 @@ export default function ServiceEditForm({
           </div>
         </form>
       </div>
-    </DirtyContextProvider>
-  );
-}
+    );
+  }
 
-function TextField({
+  function TextField({
   label,
   name,
   defaultValue,
