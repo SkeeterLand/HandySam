@@ -1,5 +1,6 @@
 import Contact from '@/app/components/Contact';
 import { getAvailableServiceTitles } from '@/lib/mongodb';
+import ServiceNav from '@/app/components/ServiceNav';
 
 export const metadata = {
     title: 'Contact Handy Sam',
@@ -11,6 +12,7 @@ export default async function ContactPage() {
 
     return (
         <section className="contact-page">
+            <ServiceNav />
             <Contact availableServices={availableServices} />
         </section>
     );
