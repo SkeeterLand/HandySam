@@ -1,5 +1,5 @@
 import Contact from '@/app/components/Contact';
-import { getAvailableServiceTitles } from '@/lib/service-mongo';
+import { getAvailableServiceTitles } from '@/lib/mongodb';
 
 export const metadata = {
     title: 'Contact Handy Sam',

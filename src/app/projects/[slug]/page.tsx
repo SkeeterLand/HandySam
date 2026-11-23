@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
-import { getProjectBySlug, getHomepageProjects } from '@/lib/service-mongo';
+import { getProjectBySlug, getHomepageProjects } from '@/lib/mongodb';
 import { listProjectImages } from '@/lib/images';
 import ProjectPageClient from '@/app/projects/ProjectPageClient';
 import ServiceNav from '@/app/components/ServiceNav';

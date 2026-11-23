@@ -1,4 +1,12 @@
 import './globals.css';
+import { validateEnv } from '@/lib/env';
+
+// Validate required env vars at runtime. Skip during Next.js builds so
+// deploys don't fail when MONGODB_URI is only available at runtime
+// (Cloudflare injects encrypted vars at deploy time, not build time).
+if (process.env.NEXT_PHASE !== 'phase-production-build') {
+    validateEnv();
+}
 
 export const metadata = {
     metadataBase: new URL('https://handy-sam.example.com'),

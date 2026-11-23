@@ -16,7 +16,7 @@ import { unstable_cache } from 'next/cache';
  *
  * Example usage (server-side only — do not import from client components):
  *
- *   import { getServicesCollection, serviceUpsert } from '@/lib/service-mongo';
+ *   import { getServicesCollection, serviceUpsert } from '@/lib/mongodb';
  *
  *   const services: ServiceContent[] = []; // your service data here
  *   const collection = await getServicesCollection();

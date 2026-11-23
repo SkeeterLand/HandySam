@@ -3,7 +3,7 @@ import Services from './components/Services';
 import Gallery from './components/Gallery';
 import About from './components/About';
 import Contact from './components/Contact';
-import { getHomepageServices, getAvailableServiceTitles, getHomepageProjects } from '@/lib/service-mongo';
+import { getHomepageServices, getAvailableServiceTitles, getHomepageProjects } from '@/lib/mongodb';
 
 const HomePage = async () => {
   const [services, availableServices, projects] = await Promise.all([

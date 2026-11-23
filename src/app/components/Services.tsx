@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
-import type { HomepageService } from '@/lib/service-mongo';
+import type { HomepageService } from '@/lib/mongodb';
 import {
     HammerIcon,
     PaintRollerIcon,
