@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { saveService } from '@/app/admin/services/actions';
+import { SaveButton } from './SaveButton';
 import type { ServiceContent } from '@/lib/mongodb';
 
 interface ServiceEditFormProps {
@@ -104,21 +105,28 @@ export default function ServiceEditForm({
                     fields={['icon', 'title', 'description']}
                     items={service?.benefits ?? []}
                 />
+                <SaveButton isPending={isPending} label="Save Benefits" />
+
                 <ScopeItemsSection
                     title="Scope Items"
                     section="scopeItems"
                     items={service?.scopeItems ?? []}
                 />
+                <SaveButton isPending={isPending} label="Save Scope Items" />
+
                 <ProcessStepsSection
                     title="Process Steps"
                     section="processSteps"
                     items={service?.processSteps ?? []}
                 />
+                <SaveButton isPending={isPending} label="Save Process Steps" />
+
                 <FaqsSection
                     title="FAQs"
                     section="faqs"
                     items={service?.faqs ?? []}
                 />
+                <SaveButton isPending={isPending} label="Save FAQs" />
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-[24px]">
                     <TextField
