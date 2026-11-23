@@ -254,12 +254,14 @@ function InnerForm({
   defaultValue,
   required,
   placeholder,
+  showSaveIcon = true,
 }: {
   label: string;
   name: string;
   defaultValue: string;
   required?: boolean;
   placeholder?: string;
+  showSaveIcon?: boolean;
 }) {
   const { markDirty, dirty, isPending } = useDirty();
   return (
@@ -275,9 +277,11 @@ function InnerForm({
         onChange={() => markDirty(name)}
         className="w-full px-[14px] py-[14px] bg-card border border-[var(--border)] rounded-[10px] text-fg focus:outline-none focus:border-accent transition-[border-color] duration-200"
       />
-      <div className="flex justify-end pt-[2px]">
-        {dirty[name] && <SaveIcon disabled={isPending} />}
-      </div>
+      {showSaveIcon && (
+        <div className="flex justify-end pt-[2px]">
+          {dirty[name] && <SaveIcon disabled={isPending} />}
+        </div>
+      )}
     </div>
   );
 }
@@ -286,10 +290,12 @@ function TextArea({
   label,
   name,
   defaultValue,
+  showSaveIcon = true,
 }: {
   label: string;
   name: string;
   defaultValue: string;
+  showSaveIcon?: boolean;
 }) {
   const { markDirty, dirty, isPending } = useDirty();
   return (
@@ -304,9 +310,11 @@ function TextArea({
         onChange={() => markDirty(name)}
         className="w-full px-[14px] py-[14px] bg-card border border-[var(--border)] rounded-[10px] text-fg focus:outline-none focus:border-accent transition-[border-color] duration-200"
       />
-      <div className="flex justify-end pt-[2px]">
-        {dirty[name] && <SaveIcon disabled={isPending} />}
-      </div>
+      {showSaveIcon && (
+        <div className="flex justify-end pt-[2px]">
+          {dirty[name] && <SaveIcon disabled={isPending} />}
+        </div>
+      )}
     </div>
   );
 }
@@ -350,6 +358,7 @@ function BenefitsSection({
               label={`${field.charAt(0).toUpperCase() + field.slice(1)} ${i + 1}`}
               name={`${section}-${i}-${field}`}
               defaultValue={items[i]?.[field] ?? ''}
+              showSaveIcon={false}
             />
           ))}
           <div className="col-span-full flex justify-end pt-[2px]">
@@ -397,12 +406,14 @@ function ScopeItemsSection({
             label={`Label ${i + 1}`}
             name={`${section}-${i}-label`}
             defaultValue={items[i]?.label ?? ''}
+            showSaveIcon={false}
           />
           <TextField
             key="items"
             label={`Items ${i + 1}`}
             name={`${section}-${i}-items`}
             defaultValue={items[i]?.items ?? ''}
+            showSaveIcon={false}
           />
           <div className="col-span-full flex justify-end pt-[2px]">
             {rowIsDirty(`${section}-${i}-`) && <SaveIcon disabled={isPending} />}
@@ -449,12 +460,14 @@ function ProcessStepsSection({
             label={`Step Title ${i + 1}`}
             name={`${section}-${i}-title`}
             defaultValue={items[i]?.title ?? ''}
+            showSaveIcon={false}
           />
           <TextArea
             key="description"
             label={`Step Description ${i + 1}`}
             name={`${section}-${i}-description`}
             defaultValue={items[i]?.description ?? ''}
+            showSaveIcon={false}
           />
           <div className="col-span-full flex justify-end pt-[2px]">
             {rowIsDirty(`${section}-${i}-`) && <SaveIcon disabled={isPending} />}
@@ -501,12 +514,14 @@ function FaqsSection({
             label={`Question ${i + 1}`}
             name={`${section}-${i}-question`}
             defaultValue={items[i]?.question ?? ''}
+            showSaveIcon={false}
           />
           <TextArea
             key="answer"
             label={`Answer ${i + 1}`}
             name={`${section}-${i}-answer`}
             defaultValue={items[i]?.answer ?? ''}
+            showSaveIcon={false}
           />
           <div className="col-span-full flex justify-end pt-[2px]">
             {rowIsDirty(`${section}-${i}-`) && <SaveIcon disabled={isPending} />}
