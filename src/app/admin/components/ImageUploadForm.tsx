@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { uploadImage } from '@/app/admin/images/actions';
 import { Button } from '@/components/ui/Button';
 
@@ -12,11 +12,13 @@ export function ImageUploadForm({ folders }: ImageUploadFormProps) {
     const [state, formAction, isPending] = useActionState(uploadImage, null);
     const [showMessage, setShowMessage] = useState<{ ok: boolean; message: string } | null>(null);
 
-    if (state?.ok) {
-        setShowMessage({ ok: true, message: 'Image uploaded successfully.' });
-    } else if (state?.error) {
-        setShowMessage({ ok: false, message: state.error });
-    }
+    useEffect(() => {
+        if (state?.ok) {
+            setShowMessage({ ok: true, message: 'Image uploaded successfully.' });
+        } else if (state?.error) {
+            setShowMessage({ ok: false, message: state.error });
+        }
+    }, [state]);
 
     return (
         <div className="border border-[var(--border)] rounded-[12px] p-[24px] bg-card space-y-[24px]">
