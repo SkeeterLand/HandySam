@@ -20,6 +20,7 @@ export async function saveService(
         const content: ServiceContent = {
             value,
             title: String(raw.title ?? ''),
+            description: String(raw.description ?? ''),
             tagline: String(raw.tagline ?? ''),
             heroTitle: String(raw.heroTitle ?? ''),
             heroHighlight: String(raw.heroHighlight ?? ''),

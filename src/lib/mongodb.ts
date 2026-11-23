@@ -32,6 +32,7 @@ import { unstable_cache } from 'next/cache';
 export interface ServiceContent {
     value: string;
     title: string;
+    description: string;
     tagline: string;
     heroTitle: string;
     heroHighlight: string;

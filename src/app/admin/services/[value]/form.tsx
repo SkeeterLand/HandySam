@@ -144,6 +144,11 @@ function InnerForm({
               defaultValue={service?.title ?? ''}
               required
             />
+            <TextField
+              label="Description"
+              name="description"
+              defaultValue={service?.description ?? ''}
+            />
             <TextField label="Tagline" name="tagline" defaultValue={service?.tagline ?? ''} />
             <TextField
               label="Hero Title"
