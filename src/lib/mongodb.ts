@@ -275,6 +275,26 @@ export function serviceReplaceDoc(content: ServiceContent): ServiceDoc {
 }
 
 /**
+ * Delete a service by its value field.
+ */
+export async function serviceDelete(value: string) {
+    const collection = await getServicesCollection();
+    if (!collection) return { success: false, deletedCount: 0 };
+    const result = await collection.deleteOne({ value });
+    return { success: true, deletedCount: result.deletedCount };
+}
+
+/**
+ * Delete a project by its slug field.
+ */
+export async function projectDelete(slug: string) {
+    const collection = await getCollection('project');
+    if (!collection) return { success: false, deletedCount: 0 };
+    const result = await collection.deleteOne({ slug });
+    return { success: true, deletedCount: result.deletedCount };
+}
+
+/**
  * Filter to match a service by its value field.
  */
 export function serviceFilter(value: string) {
