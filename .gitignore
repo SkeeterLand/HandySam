@@ -8,6 +8,7 @@ node_modules
 # Original large image sources (replaced by optimized .webp versions)
 *.jpg
 *.jpeg
+*.webp
 
 # Local Claude settings (may contain credentials)
 .claude/settings.local*.json
