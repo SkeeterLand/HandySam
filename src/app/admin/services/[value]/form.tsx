@@ -15,10 +15,7 @@ export default function ServiceEditForm({
     service,
     isNew = false,
 }: ServiceEditFormProps) {
-    const [state, formAction] = useActionState(saveService, null);
-    const [submitting, setSubmitting] = useState(false);
-
-    const isSubmitting = submitting;
+    const [state, formAction, isPending] = useActionState(saveService, null);
 
     return (
         <div className="space-y-[32px]">
@@ -45,7 +42,6 @@ export default function ServiceEditForm({
             <form
                 action={formAction}
                 className="space-y-[24px]"
-                onSubmit={() => setSubmitting(true)}
             >
                 <input
                     type="hidden"
@@ -167,10 +163,10 @@ export default function ServiceEditForm({
                 <div className="flex gap-[12px]">
                     <Button
                         type="submit"
-                        disabled={isSubmitting}
+                        disabled={isPending}
                         variant="accent"
                     >
-                        {isSubmitting ? 'Saving...' : 'Save Service'}
+                        {isPending ? 'Saving...' : 'Save Service'}
                     </Button>
                 </div>
             </form>

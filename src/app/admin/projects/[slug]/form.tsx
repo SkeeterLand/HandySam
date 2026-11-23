@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { saveProject } from '@/app/admin/projects/actions';
@@ -22,8 +22,7 @@ interface ProjectEditFormProps {
 export default function ProjectEditForm({
     project,
 }: ProjectEditFormProps) {
-    const [state, formAction] = useActionState(saveProject, null);
-    const [submitting, setSubmitting] = useState(false);
+    const [state, formAction, isPending] = useActionState(saveProject, null);
 
     return (
         <div className="space-y-[32px]">
@@ -50,7 +49,6 @@ export default function ProjectEditForm({
             <form
                 action={formAction}
                 className="space-y-[24px]"
-                onSubmit={() => setSubmitting(true)}
             >
                 <TextField
                     label="Slug (URL, e.g. tongue-and-groove-ceiling)"
@@ -94,10 +92,10 @@ export default function ProjectEditForm({
                 <div className="flex gap-[12px]">
                     <Button
                         type="submit"
-                        disabled={submitting}
+                        disabled={isPending}
                         variant="accent"
                     >
-                        {submitting ? 'Saving...' : 'Save Project'}
+                        {isPending ? 'Saving...' : 'Save Project'}
                     </Button>
                 </div>
             </form>
