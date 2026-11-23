@@ -1,6 +1,6 @@
 'use server';
 
-import { serviceDelete, serviceUpsert, findServiceByValue } from '@/lib/mongodb';
+import { serviceDelete, findServiceByValue, getServicesCollection } from '@/lib/mongodb';
 import { isAdmin } from '@/lib/admin';
 import type { ServiceContent } from '@/lib/mongodb';
 
@@ -41,7 +41,16 @@ export async function saveService(
             ctaDescription: String(raw.ctaDescription ?? ''),
         };
 
-        await serviceUpsert(value, content);
+        const collection = await getServicesCollection();
+        if (!collection) {
+            return { ok: false, error: 'Database unavailable' };
+        }
+
+        await collection.updateOne(
+            { value },
+            { $set: content },
+            { upsert: true },
+        );
 
         return { ok: true, error: null };
     } catch (err) {
