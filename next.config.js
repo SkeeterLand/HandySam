@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  serverActions: {
+    bodySizeLimit: '6mb',
+  },
   experimental: {
     agentUpgrade: 'security',
   },
