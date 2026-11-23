@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { getHomepageProjects } from '@/lib/mongodb';
+import { DeleteProjectButton } from './DeleteButton';
 import { removeProject } from './actions';
 
 export default async function AdminProjectsList() {
@@ -64,27 +65,7 @@ export default async function AdminProjectsList() {
                                     >
                                         Edit
                                     </Link>
-                                    <form
-                                        action={removeProject}
-                                        className="inline"
-                                    >
-                                        <input type="hidden" name="slug" defaultValue={p.slug} />
-                                        <button
-                                            type="submit"
-                                            className="text-red-400 hover:text-red-300 no-underline text-[14px] font-semibold"
-                                            onClick={(e) => {
-                                                if (
-                                                    !window.confirm(
-                                                        `Delete "${p.subject}"?`
-                                                    )
-                                                ) {
-                                                    e.preventDefault();
-                                                }
-                                            }}
-                                        >
-                                            Delete
-                                        </button>
-                                    </form>
+                                    <DeleteProjectButton slug={p.slug} subject={p.subject} />
                                 </div>
                             </td>
                         </tr>

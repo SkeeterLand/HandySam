@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { removeService } from './actions';
 import { Button } from '@/components/ui/Button';
 import { findAllServices } from '@/lib/mongodb';
+import { DeleteServiceButton } from './DeleteButton';
 
 export default async function AdminServicesList() {
     const services = await findAllServices();
@@ -54,31 +54,7 @@ export default async function AdminServicesList() {
                                     >
                                         Edit
                                     </Link>
-                                    <form
-                                        action={removeService}
-                                        className="inline"
-                                    >
-                                        <input
-                                            type="hidden"
-                                            name="value"
-                                            defaultValue={s.value}
-                                        />
-                                        <button
-                                            type="submit"
-                                            className="text-red-400 hover:text-red-300 no-underline text-[14px] font-semibold"
-                                            onClick={(e) => {
-                                                if (
-                                                    !window.confirm(
-                                                        `Delete "${s.title}"?`
-                                                    )
-                                                ) {
-                                                    e.preventDefault();
-                                                }
-                                            }}
-                                        >
-                                            Delete
-                                        </button>
-                                    </form>
+                                    <DeleteServiceButton value={s.value} title={s.title} />
                                 </div>
                             </td>
                         </tr>
