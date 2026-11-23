@@ -1,7 +1,8 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { saveProject } from '@/app/admin/projects/actions';
 
@@ -23,6 +24,13 @@ export default function ProjectEditForm({
     project,
 }: ProjectEditFormProps) {
     const [state, formAction, isPending] = useActionState(saveProject, null);
+    const router = useRouter();
+
+    useEffect(() => {
+        if (state?.ok) {
+            router.refresh();
+        }
+    }, [state?.ok, router]);
 
     return (
         <div className="space-y-[32px]">

@@ -1,7 +1,8 @@
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { saveService } from '@/app/admin/services/actions';
 import type { ServiceContent } from '@/lib/mongodb';
@@ -16,6 +17,13 @@ export default function ServiceEditForm({
     isNew = false,
 }: ServiceEditFormProps) {
     const [state, formAction, isPending] = useActionState(saveService, null);
+    const router = useRouter();
+
+    useEffect(() => {
+        if (state?.ok) {
+            router.refresh();
+        }
+    }, [state?.ok, router]);
 
     return (
         <div className="space-y-[32px]">
