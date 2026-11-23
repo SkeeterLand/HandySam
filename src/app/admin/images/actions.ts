@@ -47,29 +47,35 @@ function nextIncrementedNumber(folder: string, dirPath: string): number {
     return max + 1;
 }
 
-export async function uploadImage(formData: FormData): Promise<void> {
+export async function uploadImage(
+    _prevState: { ok: boolean; error: string | null } | null,
+    formData: FormData
+): Promise<{ ok: boolean; error: string | null }> {
     const authorized = await isAdmin();
     if (!authorized) {
-        return;
+        return { ok: false, error: 'Unauthorized' };
     }
 
     try {
         const file = formData.get('file') as File;
         const folder = String(formData.get('folder') ?? '').trim();
 
-        if (!file || !folder) {
-            return;
+        if (!file) {
+            return { ok: false, error: 'No file selected' };
+        }
+        if (!folder) {
+            return { ok: false, error: 'No folder selected' };
         }
 
         // Validate file type
         if (!['image/webp', 'image/jpeg'].includes(file.type)) {
-            return;
+            return { ok: false, error: 'Only WebP or JPEG images are allowed' };
         }
 
         // Validate size
         const arrayBuffer = await file.arrayBuffer();
         if (arrayBuffer.byteLength > MAX_FILE_SIZE) {
-            return;
+            return { ok: false, error: 'Image must be under 5 MB' };
         }
 
         // Sanitize folder path
@@ -79,7 +85,7 @@ export async function uploadImage(formData: FormData): Promise<void> {
             safeFolder.startsWith('/') ||
             safeFolder.startsWith('\\')
         ) {
-            return;
+            return { ok: false, error: 'Invalid folder name' };
         }
 
         // Convert to WebP with sharp (resize + quality match existing optimization)
@@ -108,8 +114,11 @@ export async function uploadImage(formData: FormData): Promise<void> {
             'generate-image-manifest.mjs'
         );
         execSync(`node "${manifestScript}"`, { stdio: 'inherit' });
+
+        return { ok: true, error: null };
     } catch (err) {
         console.error('Failed to upload image:', err);
+        return { ok: false, error: 'Failed to upload image' };
     }
 }
 
