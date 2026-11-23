@@ -5,6 +5,7 @@ import {
     projectDelete,
 } from '@/lib/mongodb';
 import { isAdmin } from '@/lib/admin';
+import { redirect } from 'next/navigation';
 
 export async function removeProject(formData: FormData): Promise<void> {
     const authorized = await isAdmin();
@@ -57,7 +58,7 @@ export async function saveProject(
             { upsert: true },
         );
 
-        return { ok: true, error: null };
+        redirect(`/admin/projects/${doc.slug}`);
     } catch (err) {
         console.error('Failed to save project:', err);
         return { ok: false, error: 'Failed to save project' };

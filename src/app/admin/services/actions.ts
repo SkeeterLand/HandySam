@@ -2,6 +2,7 @@
 
 import { serviceDelete, findServiceByValue, getServicesCollection } from '@/lib/mongodb';
 import { isAdmin } from '@/lib/admin';
+import { redirect } from 'next/navigation';
 import type { ServiceContent } from '@/lib/mongodb';
 
 export async function saveService(
@@ -52,7 +53,7 @@ export async function saveService(
             { upsert: true },
         );
 
-        return { ok: true, error: null };
+        redirect(`/admin/services/${value}`);
     } catch (err) {
         console.error('Failed to save service:', err);
         return { ok: false, error: 'Failed to save service' };
