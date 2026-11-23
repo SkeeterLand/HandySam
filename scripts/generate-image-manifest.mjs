@@ -13,6 +13,12 @@ function isImage(file) {
 function main() {
     const manifest = {};
 
+    if (!fs.existsSync(IMAGES_DIR)) {
+        fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + '\n');
+        console.log('Wrote ' + MANIFEST_PATH + ' with 0 folders (no public/images dir)');
+        return;
+    }
+
     const folders = fs.readdirSync(IMAGES_DIR).filter((f) => {
         const full = path.join(IMAGES_DIR, f);
         return fs.statSync(full).isDirectory() && !f.startsWith('.');
