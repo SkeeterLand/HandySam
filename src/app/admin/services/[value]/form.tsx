@@ -64,6 +64,7 @@ export default function ServiceEditForm({
         router={router}
         service={service}
         isNew={isNew}
+        isPending={isPending}
       />
     </DirtyContextProvider>
   );
@@ -75,12 +76,14 @@ function InnerForm({
   router,
   service,
   isNew,
+  isPending,
 }: {
   state: { ok: boolean; error: string | null } | null;
   formAction: (formData: FormData) => void;
   router: ReturnType<typeof useRouter>;
   service: ServiceContent | null;
   isNew: boolean;
+  isPending: boolean;
 }) {
   const { clearDirty, dirty } = useDirty();
 
@@ -169,24 +172,28 @@ function InnerForm({
             fields={['icon', 'title', 'description']}
             items={service?.benefits ?? []}
             rowIsDirty={rowIsDirty}
+            isPending={isPending}
           />
           <ScopeItemsSection
             title="Scope Items"
             section="scopeItems"
             items={service?.scopeItems ?? []}
             rowIsDirty={rowIsDirty}
+            isPending={isPending}
           />
           <ProcessStepsSection
             title="Process Steps"
             section="processSteps"
             items={service?.processSteps ?? []}
             rowIsDirty={rowIsDirty}
+            isPending={isPending}
           />
           <FaqsSection
             title="FAQs"
             section="faqs"
             items={service?.faqs ?? []}
             rowIsDirty={rowIsDirty}
+            isPending={isPending}
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-[24px]">
@@ -269,7 +276,7 @@ function InnerForm({
         className="w-full px-[14px] py-[14px] bg-card border border-[var(--border)] rounded-[10px] text-fg focus:outline-none focus:border-accent transition-[border-color] duration-200"
       />
       <div className="flex justify-end pt-[2px]">
-        <SaveIcon disabled={!dirty[name] || isPending} />
+        {dirty[name] && <SaveIcon disabled={isPending} />}
       </div>
     </div>
   );
@@ -298,7 +305,7 @@ function TextArea({
         className="w-full px-[14px] py-[14px] bg-card border border-[var(--border)] rounded-[10px] text-fg focus:outline-none focus:border-accent transition-[border-color] duration-200"
       />
       <div className="flex justify-end pt-[2px]">
-        <SaveIcon disabled={!dirty[name] || isPending} />
+        {dirty[name] && <SaveIcon disabled={isPending} />}
       </div>
     </div>
   );
@@ -310,12 +317,14 @@ function BenefitsSection({
   fields,
   items,
   rowIsDirty,
+  isPending,
 }: {
   title: string;
   section: string;
   fields: string[];
   items: Array<Record<string, string>>;
   rowIsDirty: (prefix: string) => boolean;
+  isPending: boolean;
 }) {
   const [count, setCount] = useState(items.length);
 
@@ -344,7 +353,7 @@ function BenefitsSection({
             />
           ))}
           <div className="col-span-full flex justify-end pt-[2px]">
-            <SaveIcon disabled={!rowIsDirty(`${section}-${i}-`)} />
+            {rowIsDirty(`${section}-${i}-`) && <SaveIcon disabled={isPending} />}
           </div>
         </div>
       ))}
@@ -357,11 +366,13 @@ function ScopeItemsSection({
   section,
   items,
   rowIsDirty,
+  isPending,
 }: {
   title: string;
   section: string;
   items: Array<{ label: string; items: string }>;
   rowIsDirty: (prefix: string) => boolean;
+  isPending: boolean;
 }) {
   const [count, setCount] = useState(items.length);
 
@@ -394,7 +405,7 @@ function ScopeItemsSection({
             defaultValue={items[i]?.items ?? ''}
           />
           <div className="col-span-full flex justify-end pt-[2px]">
-            <SaveIcon disabled={!rowIsDirty(`${section}-${i}-`)} />
+            {rowIsDirty(`${section}-${i}-`) && <SaveIcon disabled={isPending} />}
           </div>
         </div>
       ))}
@@ -407,11 +418,13 @@ function ProcessStepsSection({
   section,
   items,
   rowIsDirty,
+  isPending,
 }: {
   title: string;
   section: string;
   items: Array<{ title: string; description: string }>;
   rowIsDirty: (prefix: string) => boolean;
+  isPending: boolean;
 }) {
   const [count, setCount] = useState(items.length);
 
@@ -444,7 +457,7 @@ function ProcessStepsSection({
             defaultValue={items[i]?.description ?? ''}
           />
           <div className="col-span-full flex justify-end pt-[2px]">
-            <SaveIcon disabled={!rowIsDirty(`${section}-${i}-`)} />
+            {rowIsDirty(`${section}-${i}-`) && <SaveIcon disabled={isPending} />}
           </div>
         </div>
       ))}
@@ -457,11 +470,13 @@ function FaqsSection({
   section,
   items,
   rowIsDirty,
+  isPending,
 }: {
   title: string;
   section: string;
   items: Array<{ question: string; answer: string }>;
   rowIsDirty: (prefix: string) => boolean;
+  isPending: boolean;
 }) {
   const [count, setCount] = useState(items.length);
 
@@ -494,7 +509,7 @@ function FaqsSection({
             defaultValue={items[i]?.answer ?? ''}
           />
           <div className="col-span-full flex justify-end pt-[2px]">
-            <SaveIcon disabled={!rowIsDirty(`${section}-${i}-`)} />
+            {rowIsDirty(`${section}-${i}-`) && <SaveIcon disabled={isPending} />}
           </div>
         </div>
       ))}
