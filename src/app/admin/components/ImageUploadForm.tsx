@@ -17,7 +17,7 @@ export function ImageUploadForm({ folders }: ImageUploadFormProps) {
     useEffect(() => {
         if (state?.ok) {
             setShowMessage({ ok: true, message: 'Image uploaded successfully.' });
-            router.replace(router.asPath);
+            router.replace(window.location.pathname);
         } else if (state?.error) {
             setShowMessage({ ok: false, message: state.error });
         }
