@@ -17,9 +17,8 @@ export default async function AdminImagesPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-[32px]">
                 <ImageUploadForm folders={folders} />
+                <ImageGallery folders={folders} />
             </div>
-
-            <ImageGallery folders={folders} />
 
             <Link href="/admin" className="text-muted no-underline hover:text-fg">
                 ← Back to dashboard
