@@ -1,6 +1,7 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { uploadImage } from '@/app/admin/images/actions';
 import { Button } from '@/components/ui/Button';
 
@@ -11,14 +12,16 @@ interface ImageUploadFormProps {
 export function ImageUploadForm({ folders }: ImageUploadFormProps) {
     const [state, formAction, isPending] = useActionState(uploadImage, null);
     const [showMessage, setShowMessage] = useState<{ ok: boolean; message: string } | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         if (state?.ok) {
             setShowMessage({ ok: true, message: 'Image uploaded successfully.' });
+            router.replace(router.asPath);
         } else if (state?.error) {
             setShowMessage({ ok: false, message: state.error });
         }
-    }, [state]);
+    }, [state, router]);
 
     return (
         <div className="border border-[var(--border)] rounded-[12px] p-[24px] bg-card space-y-[24px]">
