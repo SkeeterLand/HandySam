@@ -5,7 +5,6 @@ import {
     projectDelete,
 } from '@/lib/mongodb';
 import { isAdmin } from '@/lib/admin';
-import { revalidatePath } from 'next/cache';
 
 export async function removeProject(formData: FormData): Promise<void> {
     const authorized = await isAdmin();
@@ -15,8 +14,6 @@ export async function removeProject(formData: FormData): Promise<void> {
 
     const slug = formData.get('slug') as string;
     await projectDelete(slug);
-    revalidatePath('/');
-    revalidatePath('/admin/projects');
 }
 
 export async function saveProject(
@@ -59,10 +56,6 @@ export async function saveProject(
             { $set: doc },
             { upsert: true },
         );
-
-        revalidatePath('/');
-        revalidatePath(`/projects/${doc.slug}`);
-        revalidatePath('/admin/projects');
 
         return { ok: true, error: null };
     } catch (err) {

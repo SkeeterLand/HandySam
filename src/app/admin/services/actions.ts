@@ -2,7 +2,6 @@
 
 import { serviceDelete, serviceUpsert, findServiceByValue } from '@/lib/mongodb';
 import { isAdmin } from '@/lib/admin';
-import { revalidatePath } from 'next/cache';
 import type { ServiceContent } from '@/lib/mongodb';
 
 export async function saveService(
@@ -44,10 +43,6 @@ export async function saveService(
 
         await serviceUpsert(value, content);
 
-        revalidatePath('/');
-        revalidatePath(`/services/${value}`);
-        revalidatePath('/admin/services');
-
         return { ok: true, error: null };
     } catch (err) {
         console.error('Failed to save service:', err);
@@ -63,8 +58,6 @@ export async function removeService(formData: FormData): Promise<void> {
 
     const value = formData.get('value') as string;
     await serviceDelete(value);
-    revalidatePath('/');
-    revalidatePath('/admin/services');
 }
 
 function parseBenefits(raw: Record<string, unknown>) {
