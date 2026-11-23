@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState, useCallback, createContext, useContext } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { saveService } from '@/app/admin/services/actions';
 import { SaveIcon } from './SaveIcon';
 import type { ServiceContent } from '@/lib/mongodb';
@@ -53,12 +54,14 @@ export default function ServiceEditForm({
   isNew = false,
 }: ServiceEditFormProps) {
   const [state, formAction, isPending] = useActionState(saveService, null);
+  const router = useRouter();
 
   return (
     <DirtyContextProvider isPending={isPending}>
       <InnerForm
         state={state}
         formAction={formAction}
+        router={router}
         service={service}
         isNew={isNew}
         isPending={isPending}
@@ -70,12 +73,14 @@ export default function ServiceEditForm({
 function InnerForm({
   state,
   formAction,
+  router,
   service,
   isNew,
   isPending,
 }: {
   state: { ok: boolean; error: string | null } | null;
   formAction: (formData: FormData) => void;
+  router: ReturnType<typeof useRouter>;
   service: ServiceContent | null;
   isNew: boolean;
   isPending: boolean;
@@ -84,9 +89,12 @@ function InnerForm({
 
   useEffect(() => {
     if (state?.ok) {
-      setTimeout(() => clearDirty(), 0);
+      setTimeout(() => {
+        clearDirty();
+        router.refresh();
+      }, 0);
     }
-  }, [state?.ok, clearDirty]);
+  }, [state?.ok, clearDirty, router]);
 
   const rowIsDirty = useCallback(
     (prefix: string) =>
