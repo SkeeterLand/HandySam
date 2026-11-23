@@ -295,13 +295,6 @@ export async function projectDelete(slug: string) {
 }
 
 /**
- * Filter to match a service by its value field.
- */
-export function serviceFilter(value: string) {
-    return { value };
-}
-
-/**
  * Complete upsert-ready update: filter + $set, for updateOne.
  */
 export function serviceUpsert(value: string, content: ServiceContent) {
@@ -310,4 +303,11 @@ export function serviceUpsert(value: string, content: ServiceContent) {
         update: serviceSetUpdate(content),
         options: { upsert: true },
     };
+}
+
+/**
+ * Filter to match a service by its value field.
+ */
+export function serviceFilter(value: string) {
+    return { value };
 }
