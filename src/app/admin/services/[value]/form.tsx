@@ -80,13 +80,7 @@ function InnerForm({
   isNew: boolean;
   isPending: boolean;
 }) {
-  const { clearDirty, dirty } = useDirty();
-
-  useEffect(() => {
-    if (state?.ok) {
-      clearDirty();
-    }
-  }, [state?.ok, clearDirty]);
+  const { dirty } = useDirty();
 
   const rowIsDirty = useCallback(
     (prefix: string) =>
