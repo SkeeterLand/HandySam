@@ -33,20 +33,8 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
         setDragIndex(index);
     }, []);
 
-    const onDragOver = useCallback(
-        (e: React.DragEvent, index: number) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            // Determine if cursor is in top or bottom half of the item
-            const rect = e.currentTarget.getBoundingClientRect();
-            const isBelow = e.clientY > rect.top + rect.height / 2;
-            setDropIndex(isBelow ? index + 1 : index);
-        },
-        []
-    );
-
-    // Compute target index from cursor position at drop time so it's exact,
-    // not reliant on potentially-stale dropIndex state.
+    // Compute target index from cursor position — used by both onDragOver
+    // (visual feedback) and onDrop (actual reorder) so they always match.
     const computeDropIndex = useCallback(
         (e: React.DragEvent): number => {
             if (!containerRef.current) return 0;
@@ -76,6 +64,15 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
         []
     );
 
+    const onDragOver = useCallback(
+        (e: React.DragEvent) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            setDropIndex(computeDropIndex(e));
+        },
+        [computeDropIndex]
+    );
+
     const onDrop = useCallback(
         (e: React.DragEvent) => {
             e.preventDefault();
@@ -83,6 +80,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
             const targetIndex = computeDropIndex(e);
             if (draggedIndex === null || draggedIndex === targetIndex) {
                 setDragIndex(null);
+                setDropIndex(null);
                 return;
             }
 
@@ -95,6 +93,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
             });
 
             setDragIndex(null);
+            setDropIndex(null);
         },
         [computeDropIndex]
     );
@@ -158,7 +157,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                             }}
                             draggable
                             onDragStart={(e) => onDragStart(e, index)}
-                            onDragOver={(e) => onDragOver(e, index)}
+                            onDragOver={onDragOver}
                             onDrop={onDrop}
                         >
                             <ImageItem
