@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { listImageFolders } from '@/app/admin/images/actions';
 import { ImageUploadForm } from '@/app/admin/components/ImageUploadForm';
 import { SortableFolderGallery } from '@/app/admin/components/SortableFolderGallery';
-import { FolderSelector } from '@/app/admin/components/FolderSelector';
 
 const IK_URL_ENDPOINT = process.env.IMAGEKIT_URL_ENDPOINT;
 
@@ -25,11 +24,8 @@ export default async function AdminImagesPage({
             </p>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-[32px]">
-                <ImageUploadForm folders={folders} />
-                <ImageGallery
-                    folders={folders}
-                    selectedFolder={selectedFolder ?? ''}
-                />
+                <ImageUploadForm folders={folders} selectedFolder={selectedFolder ?? ''} />
+                <ImageGallery folders={folders} selectedFolder={selectedFolder ?? ''} />
             </div>
 
             <Link href="/admin" className="text-muted no-underline hover:text-fg">
@@ -53,8 +49,6 @@ function ImageGallery({
             <h3 className="text-[16px] font-bold text-fg uppercase tracking-[0.5px]">
                 Existing Images
             </h3>
-
-            <FolderSelector folders={folders} selectedFolder={selectedFolder} />
 
             {folders.length === 0 && (
                 <p className="text-muted">No image folders found.</p>

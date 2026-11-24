@@ -7,9 +7,10 @@ import { Button } from '@/components/ui/Button';
 
 interface ImageUploadFormProps {
     folders: string[];
+    selectedFolder: string;
 }
 
-export function ImageUploadForm({ folders }: ImageUploadFormProps) {
+export function ImageUploadForm({ folders, selectedFolder }: ImageUploadFormProps) {
     const [state, formAction, isPending] = useActionState(uploadImage, null);
     const [showMessage, setShowMessage] = useState<{ ok: boolean; message: string } | null>(null);
     const router = useRouter();
@@ -22,6 +23,11 @@ export function ImageUploadForm({ folders }: ImageUploadFormProps) {
             setShowMessage({ ok: false, message: state.error });
         }
     }, [state, router]);
+
+    const handleFolderChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const val = e.target.value;
+        window.location.href = val ? `/admin/images?folder=${val}` : '/admin/images';
+    };
 
     return (
         <div className="border border-[var(--border)] rounded-[12px] p-[24px] bg-card space-y-[24px]">
@@ -48,9 +54,11 @@ export function ImageUploadForm({ folders }: ImageUploadFormProps) {
                     </label>
                     <select
                         name="folder"
-                        defaultValue={folders[0] ?? ''}
+                        defaultValue={selectedFolder ?? ''}
+                        onChange={handleFolderChange}
                         className="w-full px-[14px] py-[14px] bg-card border border-[var(--border)] rounded-[10px] text-fg focus:outline-none focus:border-accent cursor-pointer"
                     >
+                        <option value="">None Selected</option>
                         {folders.map((folder) => (
                             <option key={folder} value={folder}>
                                 {folder}
