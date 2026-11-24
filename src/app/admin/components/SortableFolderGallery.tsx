@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { listImagesInFolder, saveSortOrder } from '@/app/admin/images/actions';
 import { ImageItem } from './ImageItem';
 import { Button } from '@/components/ui/Button';
@@ -12,7 +12,7 @@ interface SortableFolderGalleryProps {
 
 export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGalleryProps) {
     const [images, setImages] = useState<string[]>([]);
-    const [isPending, startTransition] = useTransition();
+    const [isSaving, setIsSaving] = useState(false);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
     const containerRef = useRef<HTMLDivElement>(null);
@@ -118,22 +118,23 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     );
 
     const handleSave = async () => {
-        startTransition(async () => {
-            setSaveStatus('saving');
-            try {
-                const result = await saveSortOrder(folder, images);
-                if (result.ok) {
-                    setSaveStatus('saved');
-                    setTimeout(() => setSaveStatus('idle'), 1500);
-                } else {
-                    setSaveStatus('error');
-                    setTimeout(() => setSaveStatus('idle'), 2000);
-                }
-            } catch {
+        setIsSaving(true);
+        setSaveStatus('saving');
+        try {
+            const result = await saveSortOrder(folder, images);
+            if (result.ok) {
+                setSaveStatus('saved');
+                setTimeout(() => setSaveStatus('idle'), 1500);
+            } else {
                 setSaveStatus('error');
                 setTimeout(() => setSaveStatus('idle'), 2000);
             }
-        });
+        } catch {
+            setSaveStatus('error');
+            setTimeout(() => setSaveStatus('idle'), 2000);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     const isDragging = (index: number) => dragIndex !== null && index === dragIndex;
@@ -212,11 +213,11 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                     <Button
                         type="button"
                         onClick={handleSave}
-                        disabled={isPending || saveStatus === 'saved'}
+                        disabled={isSaving || saveStatus === 'saved'}
                         variant="accent"
                         size="sm"
                     >
-                        {saveStatus === 'saved' ? 'Order saved!' : isPending ? 'Saving...' : 'Save order'}
+                        {saveStatus === 'saved' ? 'Order saved!' : isSaving ? 'Saving...' : 'Save order'}
                     </Button>
                     {saveStatus === 'error' && (
                         <span className="text-[11px] text-red-400 font-medium">
