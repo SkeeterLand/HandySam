@@ -143,21 +143,22 @@ export async function uploadImage(
             return { ok: false, error: 'ImageKit upload failed' };
         }
 
-        const uploadData = await uploadResp.json();
+        await uploadResp.json();
         const imageUrl = IK_URL_ENDPOINT.replace(/\/$/, '') + '/' + safeFolder + '/' + fileName;
 
         // Store image metadata in MongoDB
         const collection = await getImagesCollection();
-        if (collection) {
-            await collection.insertOne({
-                folder: safeFolder,
-                fileName,
-                baseName,
-                url: imageUrl,
-                uploadedAt: new Date(),
-                size: webpBuffer.byteLength,
-            });
+        if (!collection) {
+            return { ok: false, error: 'Database unavailable' };
         }
+        await collection.insertOne({
+            folder: safeFolder,
+            fileName,
+            baseName,
+            url: imageUrl,
+            uploadedAt: new Date(),
+            size: webpBuffer.byteLength,
+        });
 
         return { ok: true, error: null };
     } catch (err) {
