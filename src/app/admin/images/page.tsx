@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { listImageFolders, listImagesInFolder } from '@/app/admin/images/actions';
 import { ImageUploadForm } from '@/app/admin/components/ImageUploadForm';
+import { ImageItem } from '@/app/admin/components/ImageItem';
 
 const IK_URL_ENDPOINT = process.env.IMAGEKIT_URL_ENDPOINT;
 
@@ -63,17 +64,12 @@ async function FolderGallery({ folder }: { folder: string }) {
             ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-[8px]">
                     {images.map((file) => (
-                        <div
+                        <ImageItem
                             key={file}
-                            className="aspect-[1/1] rounded-[8px] overflow-hidden border border-[var(--border)] bg-bg-secondary"
-                        >
-                            <img
-                                src={imageUrl(folder, file)}
-                                alt={file}
-                                className="w-full h-full object-cover"
-                                loading="lazy"
-                            />
-                        </div>
+                            folder={folder}
+                            fileName={file}
+                            url={imageUrl(folder, file)}
+                        />
                     ))}
                 </div>
             )}
