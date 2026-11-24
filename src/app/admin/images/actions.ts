@@ -205,7 +205,10 @@ export async function saveSortOrder(
     folder: string,
     orderedFileNames: string[]
 ): Promise<{ ok: boolean; error: string | null }> {
+    console.log('saveSortOrder called:', { folder, count: orderedFileNames.length, sample: orderedFileNames.slice(0, 3) });
+
     const authorized = await isAdmin();
+    console.log('saveSortOrder isAdmin:', authorized);
     if (!authorized) {
         return { ok: false, error: 'Unauthorized' };
     }
@@ -215,6 +218,10 @@ export async function saveSortOrder(
         return { ok: false, error: 'Database unavailable' };
     }
 
+    // Verify documents exist before updating
+    const existing = await collection.countDocuments({ folder });
+    console.log('saveSortOrder existing docs in folder:', { folder, count: existing });
+
     const bulkOps = orderedFileNames.map((fileName, index) => ({
         updateOne: {
             filter: { folder, fileName },
@@ -223,7 +230,12 @@ export async function saveSortOrder(
     }));
 
     if (bulkOps.length > 0) {
-        await collection.bulkWrite(bulkOps);
+        const result = await collection.bulkWrite(bulkOps);
+        console.log('saveSortOrder bulkWrite result:', {
+            matchedCount: result.matchedCount,
+            modifiedCount: result.modifiedCount,
+            upsertedCount: result.upsertedCount,
+        });
     }
 
     return { ok: true, error: null };

@@ -14,6 +14,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     const [images, setImages] = useState<string[]>([]);
     const [isSaving, setIsSaving] = useState(false);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+    const [saveError, setSaveError] = useState<string | null>(null);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const itemRects = useRef<Map<string, DOMRect>>(new Map());
@@ -120,6 +121,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     const handleSave = async () => {
         setIsSaving(true);
         setSaveStatus('saving');
+        setSaveError(null);
         try {
             const result = await saveSortOrder(folder, images);
             if (result.ok) {
@@ -127,11 +129,13 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                 setTimeout(() => setSaveStatus('idle'), 1500);
             } else {
                 setSaveStatus('error');
-                setTimeout(() => setSaveStatus('idle'), 2000);
+                setSaveError(result.error ?? 'Unknown error');
+                setTimeout(() => setSaveStatus('idle'), 3000);
             }
-        } catch {
+        } catch (err) {
             setSaveStatus('error');
-            setTimeout(() => setSaveStatus('idle'), 2000);
+            setSaveError(err instanceof Error ? err.message : 'Unknown error');
+            setTimeout(() => setSaveStatus('idle'), 3000);
         } finally {
             setIsSaving(false);
         }
@@ -220,8 +224,13 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                         {saveStatus === 'saved' ? 'Order saved!' : isSaving ? 'Saving...' : 'Save order'}
                     </Button>
                     {saveStatus === 'error' && (
-                        <span className="text-[11px] text-red-400 font-medium">
-                            Failed to save
+                        <span className="text-[10px] text-red-400 font-medium flex items-center gap-[2px]">
+                            Failed to save: {saveError}
+                        </span>
+                    )}
+                    {saveStatus === 'saved' && (
+                        <span className="text-[10px] text-accent font-medium">
+                            Order saved
                         </span>
                     )}
                 </div>
