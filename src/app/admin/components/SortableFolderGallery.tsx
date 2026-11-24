@@ -113,77 +113,93 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                                 />
 
                                 {/* Left edge arrow */}
-                                <div className="absolute left-[1px] top-[50%] -translate-y-[50%] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    {arrowBtn(
-                                        !canLeft(index),
-                                        () => moveItem(index, index - 1),
-                                        '←',
-                                        index - 1
-                                    )}
-                                </div>
+                                {canLeft(index) && (
+                                    <div className="absolute left-[1px] top-[50%] -translate-y-[50%] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        {arrowBtn(
+                                            false,
+                                            () => moveItem(index, index - 1),
+                                            '←',
+                                            index - 1
+                                        )}
+                                    </div>
+                                )}
                                 {/* Right edge arrow */}
-                                <div className="absolute right-[1px] top-[50%] -translate-y-[50%] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    {arrowBtn(
-                                        !canRight(index),
-                                        () => moveItem(index, index + 1),
-                                        '→',
-                                        index + 1
-                                    )}
-                                </div>
+                                {canRight(index) && (
+                                    <div className="absolute right-[1px] top-[50%] -translate-y-[50%] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        {arrowBtn(
+                                            false,
+                                            () => moveItem(index, index + 1),
+                                            '→',
+                                            index + 1
+                                        )}
+                                    </div>
+                                )}
                                 {/* Top center arrow */}
-                                <div className="absolute top-[1px] left-[50%] -translate-x-[50%] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    {arrowBtn(
-                                        !canUp(index),
-                                        () => moveItem(index, index - COLS),
-                                        '↑',
-                                        index - COLS
-                                    )}
-                                </div>
+                                {canUp(index) && (
+                                    <div className="absolute top-[1px] left-[50%] -translate-x-[50%] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        {arrowBtn(
+                                            false,
+                                            () => moveItem(index, index - COLS),
+                                            '↑',
+                                            index - COLS
+                                        )}
+                                    </div>
+                                )}
                                 {/* Bottom center arrow */}
-                                <div className="absolute bottom-[1px] left-[50%] -translate-x-[50%] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    {arrowBtn(
-                                        !canDown(index),
-                                        () => moveItem(index, index + COLS),
-                                        '↓',
-                                        index + COLS
-                                    )}
-                                </div>
+                                {canDown(index) && (
+                                    <div className="absolute bottom-[1px] left-[50%] -translate-x-[50%] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        {arrowBtn(
+                                            false,
+                                            () => moveItem(index, index + COLS),
+                                            '↓',
+                                            index + COLS
+                                        )}
+                                    </div>
+                                )}
                                 {/* Top-left corner arrow */}
-                                <div className="absolute top-[2px] left-[2px] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    {arrowBtn(
-                                        !canLeft(index) || !canUp(index),
-                                        () => moveItem(index, index - COLS - 1),
-                                        '↖',
-                                        index - COLS - 1
-                                    )}
-                                </div>
+                                {canLeft(index) && canUp(index) && (
+                                    <div className="absolute top-[2px] left-[2px] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        {arrowBtn(
+                                            false,
+                                            () => moveItem(index, index - COLS - 1),
+                                            '↖',
+                                            index - COLS - 1
+                                        )}
+                                    </div>
+                                )}
                                 {/* Top-right corner arrow */}
-                                <div className="absolute top-[2px] right-[2px] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    {arrowBtn(
-                                        !canRight(index) || !canUp(index),
-                                        () => moveItem(index, index - COLS + 1),
-                                        '↗',
-                                        index - COLS + 1
-                                    )}
-                                </div>
+                                {canRight(index) && canUp(index) && (
+                                    <div className="absolute top-[2px] right-[2px] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        {arrowBtn(
+                                            false,
+                                            () => moveItem(index, index - COLS + 1),
+                                            '↗',
+                                            index - COLS + 1
+                                        )}
+                                    </div>
+                                )}
                                 {/* Bottom-left corner arrow */}
-                                <div className="absolute bottom-[2px] left-[2px] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    {arrowBtn(
-                                        !canLeft(index) || !canDown(index),
-                                        () => moveItem(index, index + COLS - 1),
-                                        '↙',
-                                        index + COLS - 1
-                                    )}
-                                </div>
+                                {canLeft(index) && canDown(index) && (
+                                    <div className="absolute bottom-[2px] left-[2px] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        {arrowBtn(
+                                            false,
+                                            () => moveItem(index, index + COLS - 1),
+                                            '↙',
+                                            index + COLS - 1
+                                        )}
+                                    </div>
+                                )}
                                 {/* Bottom-right corner arrow */}
-                                <div className="absolute bottom-[2px] right-[2px] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    {arrowBtn(
-                                        !canRight(index) || !canDown(index),
-                                        () => moveItem(index, index + COLS + 1),
-                                        '↘',
-                                        index + COLS + 1
-                                    )}
-                                </div>
+                                {canRight(index) && canDown(index) && (
+                                    <div className="absolute bottom-[2px] right-[2px] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                        {arrowBtn(
+                                            false,
+                                            () => moveItem(index, index + COLS + 1),
+                                            '↘',
+                                            index + COLS + 1
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
