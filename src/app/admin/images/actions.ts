@@ -123,7 +123,10 @@ export async function uploadImage(
 
         // Upload to ImageKit
         const form = new FormData();
-        form.append('file', new Blob([webpBuffer]));
+        const webpFile = new File([webpBuffer], fileName, {
+            type: 'image/webp',
+        });
+        form.append('file', webpFile);
         form.append('fileName', fileName);
         form.append('folder', `/${safeFolder}`);
         form.append('useUniqueFileName', 'false');
