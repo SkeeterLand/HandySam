@@ -164,6 +164,12 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                             {isDropTarget(index) && (
                                 <div
                                     data-drop-slot={String(index)}
+                                    onDragOver={(e) => {
+                                        e.preventDefault();
+                                        e.dataTransfer.dropEffect = 'move';
+                                        setDropIndex(index);
+                                    }}
+                                    onDrop={(e) => onDrop(e, index)}
                                     className="aspect-[1/1] rounded-[8px] border-[3px] border-dashed border-accent bg-accent/20"
                                     style={{ visibility: dragIndex === index ? 'hidden' : 'visible' }}
                                 />
@@ -205,6 +211,12 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                             {index === images.length - 1 && isDropTarget(images.length) && (
                                 <div
                                     data-drop-slot={String(images.length)}
+                                    onDragOver={(e) => {
+                                        e.preventDefault();
+                                        e.dataTransfer.dropEffect = 'move';
+                                        setDropIndex(images.length);
+                                    }}
+                                    onDrop={(e) => onDrop(e, images.length)}
                                     className="aspect-[1/1] rounded-[8px] border-[3px] border-dashed border-accent bg-accent/20"
                                 />
                             )}
