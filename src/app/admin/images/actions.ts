@@ -236,6 +236,16 @@ export async function saveSortOrder(
             modifiedCount: result.modifiedCount,
             upsertedCount: result.upsertedCount,
         });
+
+        // Verify sortOrder was actually written
+        const verify = await collection
+            .find({ folder })
+            .sort({ sortOrder: 1 })
+            .toArray();
+        console.log('saveSortOrder verify after write:', {
+            total: verify.length,
+            first3: verify.slice(0, 3).map((d) => ({ fileName: d.fileName, sortOrder: d.sortOrder })),
+        });
     }
 
     return { ok: true, error: null };
