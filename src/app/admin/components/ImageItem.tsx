@@ -29,7 +29,7 @@ export function ImageItem({ folder, fileName, url }: ImageItemProps) {
                 className="w-full h-full object-cover"
                 loading="lazy"
             />
-            <div className="absolute inset-0 bg-black/20 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/20 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-[2px]">
                 {copied ? (
                     <span className="text-[10px] font-bold text-white bg-black/60 px-[4px] py-[2px] rounded-[4px]">
                         Copied!
@@ -39,6 +39,9 @@ export function ImageItem({ folder, fileName, url }: ImageItemProps) {
                         Copy URL
                     </span>
                 )}
+                <span className="text-[9px] font-medium text-white bg-black/60 px-[2px] py-[1px] rounded-[3px] truncate max-w-[80px]">
+                    {fileName}
+                </span>
             </div>
         </div>
     );
