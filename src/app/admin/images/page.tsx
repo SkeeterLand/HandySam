@@ -2,6 +2,13 @@ import Link from 'next/link';
 import { listImageFolders, listImagesInFolder } from '@/app/admin/images/actions';
 import { ImageUploadForm } from '@/app/admin/components/ImageUploadForm';
 
+const IK_URL_ENDPOINT = process.env.IMAGEKIT_URL_ENDPOINT;
+
+function imageUrl(folder: string, fileName: string): string {
+    const base = IK_URL_ENDPOINT?.replace(/\/$/, '') || '';
+    return base ? `${base}/${folder}/${fileName}` : `/images/${folder}/${fileName}`;
+}
+
 export default async function AdminImagesPage() {
     const folders = await listImageFolders();
 
@@ -61,7 +68,7 @@ async function FolderGallery({ folder }: { folder: string }) {
                             className="aspect-[1/1] rounded-[8px] overflow-hidden border border-[var(--border)] bg-bg-secondary"
                         >
                             <img
-                                src={`/images/${folder}/${file}`}
+                                src={imageUrl(folder, file)}
                                 alt={file}
                                 className="w-full h-full object-cover"
                                 loading="lazy"

@@ -1,14 +1,21 @@
 'use server';
 
-import fs from 'fs';
-import path from 'path';
 import sharp from 'sharp';
-import { execSync } from 'child_process';
 import { isAdmin } from '@/lib/admin';
+import { getImagesCollection } from '@/lib/mongodb';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const MAX_WIDTH = 1600;
 const QUALITY = 82;
+
+const IK_PUBLIC_KEY = process.env.IMAGEKIT_PUBLIC_KEY;
+const IK_PRIVATE_KEY = process.env.IMAGEKIT_PRIVATE_KEY;
+const IK_URL_ENDPOINT = process.env.IMAGEKIT_URL_ENDPOINT;
+
+function ikAuthHeader(): string {
+    if (!IK_PRIVATE_KEY) throw new Error('IMAGEKIT_PRIVATE_KEY not set');
+    return 'Basic ' + Buffer.from(IK_PRIVATE_KEY + ':').toString('base64');
+}
 
 function sanitizeFolder(name: string): string {
     return name
@@ -27,23 +34,17 @@ function sanitizeFolder(name: string): string {
  * Given a folder like 'bathroom', find the highest existing N in
  * bathroom-N.webp and return N+1. If none exist, returns 1.
  */
-function nextIncrementedNumber(folder: string, dirPath: string): number {
-    if (!fs.existsSync(dirPath)) {
-        return 1;
-    }
-
-    const files = fs.readdirSync(dirPath);
-    const regex = new RegExp(`^${folder}-(\\d+)\\.webp$`);
+function nextIncrementedNumber(folder: string, files: Array<{ name: string }>): number {
+    const baseName = folder.split('/').pop()!;
+    const regex = new RegExp(`^${baseName}-(\\d+)\\.webp$`);
     let max = 0;
-
     for (const file of files) {
-        const match = file.match(regex);
+        const match = file.name.match(regex);
         if (match) {
             const n = parseInt(match[1], 10);
             if (n > max) max = n;
         }
     }
-
     return max + 1;
 }
 
@@ -54,6 +55,10 @@ export async function uploadImage(
     const authorized = await isAdmin();
     if (!authorized) {
         return { ok: false, error: 'Unauthorized' };
+    }
+
+    if (!IK_PUBLIC_KEY || !IK_PRIVATE_KEY || !IK_URL_ENDPOINT) {
+        return { ok: false, error: 'ImageKit not configured on server' };
     }
 
     try {
@@ -97,23 +102,59 @@ export async function uploadImage(
         // Determine next incremented filename: bathroom-14.webp
         // For subfolders like ceiling/coffered, use coffered-14.webp
         const baseName = safeFolder.split('/').pop()!;
-        const publicDir = path.join(process.cwd(), 'public');
-        const targetDir = path.join(publicDir, 'images', safeFolder);
-        fs.mkdirSync(targetDir, { recursive: true });
 
-        const nextNum = nextIncrementedNumber(baseName, targetDir);
-        const fileName = `${baseName}-${nextNum}.webp`;
-        const targetPath = path.join(targetDir, fileName);
-
-        fs.writeFileSync(targetPath, webpBuffer);
-
-        // Regenerate the image manifest so new images are picked up
-        const manifestScript = path.join(
-            process.cwd(),
-            'scripts',
-            'generate-image-manifest.mjs'
+        // List existing files in this ImageKit folder to find next increment number
+        const listResp = await fetch(
+            `https://upload.imagekit.io/api/v1/files?folderName=/${safeFolder}`,
+            { headers: { Authorization: ikAuthHeader() } }
         );
-        execSync(`node "${manifestScript}"`, { stdio: 'inherit' });
+        let existingFiles: Array<{ name: string }> = [];
+        if (listResp.ok) {
+            const listData = await listResp.json();
+            existingFiles = (listData?.result ?? []).map(
+                (f: { filePath?: string; name?: string }) => ({
+                    name: f.name ?? f.filePath?.split('/').pop() ?? '',
+                })
+            );
+        }
+
+        const nextNum = nextIncrementedNumber(baseName, existingFiles);
+        const fileName = `${baseName}-${nextNum}.webp`;
+
+        // Upload to ImageKit
+        const form = new FormData();
+        form.append('file', new Blob([webpBuffer]));
+        form.append('fileName', fileName);
+        form.append('folder', `/${safeFolder}`);
+        form.append('useUniqueFileName', 'false');
+
+        const uploadResp = await fetch('https://upload.imagekit.io/api/v1/files/upload', {
+            method: 'POST',
+            headers: { Authorization: ikAuthHeader() },
+            body: form,
+        });
+
+        if (!uploadResp.ok) {
+            const errText = await uploadResp.text();
+            console.error('ImageKit upload failed:', errText);
+            return { ok: false, error: 'ImageKit upload failed' };
+        }
+
+        const uploadData = await uploadResp.json();
+        const imageUrl = IK_URL_ENDPOINT.replace(/\/$/, '') + '/' + safeFolder + '/' + fileName;
+
+        // Store image metadata in MongoDB
+        const collection = await getImagesCollection();
+        if (collection) {
+            await collection.insertOne({
+                folder: safeFolder,
+                fileName,
+                baseName,
+                url: imageUrl,
+                uploadedAt: new Date(),
+                size: webpBuffer.byteLength,
+            });
+        }
 
         return { ok: true, error: null };
     } catch (err) {
@@ -123,28 +164,23 @@ export async function uploadImage(
 }
 
 export async function listImageFolders(): Promise<string[]> {
-    const publicDir = path.join(process.cwd(), 'public', 'images');
-    if (!fs.existsSync(publicDir)) {
-        return [];
-    }
-    return fs
-        .readdirSync(publicDir)
-        .filter((f) => !f.startsWith('.'))
-        .filter((f) => fs.statSync(path.join(publicDir, f)).isDirectory());
+    const collection = await getImagesCollection();
+    if (!collection) return [];
+
+    const folders = await collection
+        .distinct('folder')
+        .catch(() => [] as string[]);
+    return folders.sort();
 }
 
 export async function listImagesInFolder(folder: string): Promise<string[]> {
-    const targetDir = path.join(process.cwd(), 'public', 'images', folder);
-    if (!fs.existsSync(targetDir)) {
-        return [];
-    }
-    return fs
-        .readdirSync(targetDir)
-        .filter((f) => {
-            const ext = path.extname(f).toLowerCase();
-            return ['.jpg', '.jpeg', '.webp', '.png', '.gif', '.avif'].includes(
-                ext
-            );
-        })
-        .sort();
+    const collection = await getImagesCollection();
+    if (!collection) return [];
+
+    const docs = await collection
+        .find({ folder })
+        .sort({ uploadedAt: -1 })
+        .toArray();
+
+    return docs.map((d) => d.fileName);
 }

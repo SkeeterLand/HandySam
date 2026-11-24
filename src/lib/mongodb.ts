@@ -80,6 +80,10 @@ export async function getServicesCollection() {
     return getCollection('services');
 }
 
+export async function getImagesCollection() {
+    return getCollection('images');
+}
+
 /**
  * Find all services in the collection.
  * Wrapped with Next.js unstable_cache so only one DB call is made per
