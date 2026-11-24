@@ -14,8 +14,8 @@ export default async function AdminImagesPage() {
                 Images
             </h1>
             <p className="text-muted text-[16px]">
-                Upload images to <code className="font-mono text-sm">public/images/</code>.
-                The manifest is regenerated automatically after each upload.
+                Upload images to <code className="font-mono text-sm">ImageKit</code>.
+                Choose the destination folder from the dropdown below.
             </p>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-[32px]">
