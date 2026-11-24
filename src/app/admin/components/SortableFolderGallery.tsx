@@ -19,7 +19,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
         listImagesInFolder(folder).then(setImages);
     }, [folder]);
 
-    const COLS = 4; // conceptual columns for up/down movement
+    const COLS = 4; // conceptual columns for up/down/diagonal movement
 
     const moveItem = useCallback(
         (from: number, to: number) => {
@@ -34,6 +34,11 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
         },
         []
     );
+
+    const canLeft = (index: number) => index > 0 && index % COLS !== 0;
+    const canRight = (index: number) => index < images.length - 1 && index % COLS !== COLS - 1;
+    const canUp = (index: number) => index >= COLS;
+    const canDown = (index: number) => index + COLS < images.length;
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -55,6 +60,21 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
         }
     };
 
+    const arrowBtn = (disabled: boolean, onClick: () => void, label: string) => (
+        <button
+            onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onClick();
+            }}
+            disabled={disabled}
+            className={`w-[20px] h-[20px] rounded-full bg-white/95 text-accent text-[10px] font-bold flex items-center justify-center border border-accent/30 shadow-sm hover:bg-accent hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed ${disabled ? '' : ''}`}
+            title={label}
+        >
+            {label}
+        </button>
+    );
+
     return (
         <div className="space-y-[12px]">
             <h4 className="text-[13px] font-bold text-accent uppercase tracking-[0.5px]">
@@ -75,68 +95,69 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                                     url={`${baseUrl}/${folder}/${fileName}`}
                                 />
 
-                                {/* Movement arrows — appear on hover, positioned at edges */}
-                                <div
-                                    className="absolute inset-0 flex items-center justify-between px-[2px] py-[2px] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                                >
-                                    {/* Left */}
-                                    <button
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            if (index > 0) moveItem(index, index - 1);
-                                        }}
-                                        disabled={index === 0}
-                                        className="w-[20px] h-[20px] rounded-full bg-white/95 text-accent text-[10px] font-bold flex items-center justify-center border border-accent/30 shadow-sm hover:bg-accent hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                                        title="Move left"
-                                    >
-                                        ←
-                                    </button>
-                                    {/* Right */}
-                                    <button
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            if (index < images.length - 1) moveItem(index, index + 1);
-                                        }}
-                                        disabled={index === images.length - 1}
-                                        className="w-[20px] h-[20px] rounded-full bg-white/95 text-accent text-[10px] font-bold flex items-center justify-center border border-accent/30 shadow-sm hover:bg-accent hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                                        title="Move right"
-                                    >
-                                        →
-                                    </button>
+                                {/* Left edge arrow */}
+                                <div className="absolute left-[1px] top-[50%] -translate-y-[50%] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    {arrowBtn(
+                                        !canLeft(index),
+                                        () => moveItem(index, index - 1),
+                                        '←'
+                                    )}
                                 </div>
-
-                                {/* Vertical arrows — centered top/bottom */}
-                                <div className="absolute top-[1px] left-[50%] -translate-x-[50%] z-[10] flex flex-col gap-[1px] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    <button
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            const target = index - COLS;
-                                            if (target >= 0) moveItem(index, target);
-                                        }}
-                                        disabled={index < COLS}
-                                        className="w-[20px] h-[20px] rounded-full bg-white/95 text-accent text-[10px] font-bold flex items-center justify-center border border-accent/30 shadow-sm hover:bg-accent hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                                        title="Move up"
-                                    >
-                                        ↑
-                                    </button>
+                                {/* Right edge arrow */}
+                                <div className="absolute right-[1px] top-[50%] -translate-y-[50%] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    {arrowBtn(
+                                        !canRight(index),
+                                        () => moveItem(index, index + 1),
+                                        '→'
+                                    )}
                                 </div>
-                                <div className="absolute bottom-[1px] left-[50%] -translate-x-[50%] z-[10] flex flex-col gap-[1px] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                    <button
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            const target = index + COLS;
-                                            if (target < images.length) moveItem(index, target);
-                                        }}
-                                        disabled={index + COLS >= images.length}
-                                        className="w-[20px] h-[20px] rounded-full bg-white/95 text-accent text-[10px] font-bold flex items-center justify-center border border-accent/30 shadow-sm hover:bg-accent hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                                        title="Move down"
-                                    >
-                                        ↓
-                                    </button>
+                                {/* Top center arrow */}
+                                <div className="absolute top-[1px] left-[50%] -translate-x-[50%] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    {arrowBtn(
+                                        !canUp(index),
+                                        () => moveItem(index, index - COLS),
+                                        '↑'
+                                    )}
+                                </div>
+                                {/* Bottom center arrow */}
+                                <div className="absolute bottom-[1px] left-[50%] -translate-x-[50%] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    {arrowBtn(
+                                        !canDown(index),
+                                        () => moveItem(index, index + COLS),
+                                        '↓'
+                                    )}
+                                </div>
+                                {/* Top-left corner arrow */}
+                                <div className="absolute top-[2px] left-[2px] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    {arrowBtn(
+                                        !canLeft(index) || !canUp(index),
+                                        () => moveItem(index, index - COLS - 1),
+                                        '↖'
+                                    )}
+                                </div>
+                                {/* Top-right corner arrow */}
+                                <div className="absolute top-[2px] right-[2px] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    {arrowBtn(
+                                        !canRight(index) || !canUp(index),
+                                        () => moveItem(index, index - COLS + 1),
+                                        '↗'
+                                    )}
+                                </div>
+                                {/* Bottom-left corner arrow */}
+                                <div className="absolute bottom-[2px] left-[2px] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    {arrowBtn(
+                                        !canLeft(index) || !canDown(index),
+                                        () => moveItem(index, index + COLS - 1),
+                                        '↙'
+                                    )}
+                                </div>
+                                {/* Bottom-right corner arrow */}
+                                <div className="absolute bottom-[2px] right-[2px] z-[10] pointer-events-none group-hover:pointer-events-auto opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                    {arrowBtn(
+                                        !canRight(index) || !canDown(index),
+                                        () => moveItem(index, index + COLS + 1),
+                                        '↘'
+                                    )}
                                 </div>
                             </div>
                         ))}
