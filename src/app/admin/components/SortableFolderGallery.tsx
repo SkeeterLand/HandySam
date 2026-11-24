@@ -47,9 +47,10 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     );
 
     const onDrop = useCallback(
-        (e: React.DragEvent, targetIndex: number) => {
+        (e: React.DragEvent) => {
             e.preventDefault();
             const draggedIndex = Number(e.dataTransfer.getData('text/plain'));
+            const targetIndex = dropIndex ?? draggedIndex;
             if (draggedIndex === null || draggedIndex === targetIndex) {
                 setDragIndex(null);
                 setDropIndex(null);
@@ -67,7 +68,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
             setDragIndex(null);
             setDropIndex(null);
         },
-        []
+        [dropIndex]
     );
 
     const handleSave = async () => {
@@ -129,7 +130,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                             draggable
                             onDragStart={(e) => onDragStart(e, index)}
                             onDragOver={(e) => onDragOver(e, index)}
-                            onDrop={(e) => onDrop(e, index)}
+                            onDrop={onDrop}
                         >
                             <ImageItem
                                 fileName={fileName}
@@ -155,7 +156,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                                 e.dataTransfer.dropEffect = 'move';
                                 setDropIndex(images.length);
                             }}
-                            onDrop={(e) => onDrop(e, images.length)}
+                            onDrop={onDrop}
                             className="aspect-[1/1] rounded-[8px] border-[3px] border-dashed border-accent bg-accent/20"
                         />
                     )}
