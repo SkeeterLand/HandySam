@@ -1,14 +1,10 @@
 import Link from 'next/link';
-import { listImageFolders, listImagesInFolder } from '@/app/admin/images/actions';
+import { listImageFolders } from '@/app/admin/images/actions';
 import { ImageUploadForm } from '@/app/admin/components/ImageUploadForm';
-import { ImageItem } from '@/app/admin/components/ImageItem';
+import { SortableFolderGallery } from '@/app/admin/components/SortableFolderGallery';
 
 const IK_URL_ENDPOINT = process.env.IMAGEKIT_URL_ENDPOINT;
-
-function imageUrl(folder: string, fileName: string): string {
-    const base = IK_URL_ENDPOINT?.replace(/\/$/, '') || '';
-    return base ? `${base}/${folder}/${fileName}` : `/images/${folder}/${fileName}`;
-}
+const baseUrl = IK_URL_ENDPOINT?.replace(/\/$/, '') || '';
 
 export default async function AdminImagesPage({
     searchParams,
@@ -41,6 +37,7 @@ export default async function AdminImagesPage({
 }
 
 function ImageGallery({ folders, sort }: { folders: string[]; sort: string }) {
+    const baseUrl = IK_URL_ENDPOINT?.replace(/\/$/, '') || '';
     return (
         <div className="border border-[var(--border)] rounded-[12px] p-[24px] bg-card space-y-[16px]">
             <div className="flex items-center justify-between mb-[8px]">
@@ -66,34 +63,8 @@ function ImageGallery({ folders, sort }: { folders: string[]; sort: string }) {
                 <p className="text-muted">No image folders found.</p>
             )}
             {folders.map((folder) => (
-                <FolderGallery key={folder} folder={folder} sort={sort} />
+                <SortableFolderGallery key={folder} folder={folder} baseUrl={baseUrl} />
             ))}
-        </div>
-    );
-}
-
-async function FolderGallery({ folder, sort }: { folder: string; sort: string }) {
-    const images = await listImagesInFolder(folder, sort as any);
-
-    return (
-        <div className="space-y-[12px]">
-            <h4 className="text-[13px] font-bold text-accent uppercase tracking-[0.5px]">
-                {folder} ({images.length})
-            </h4>
-            {images.length === 0 ? (
-                <p className="text-muted text-sm">No images</p>
-            ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-[8px]">
-                    {images.map((file) => (
-                        <ImageItem
-                            key={file}
-                            folder={folder}
-                            fileName={file}
-                            url={imageUrl(folder, file)}
-                        />
-                    ))}
-                </div>
-            )}
         </div>
     );
 }

@@ -3,13 +3,24 @@
 import { useCallback, useState } from 'react';
 
 interface ImageItemProps {
-    folder: string;
     fileName: string;
     url: string;
+    dragIndex?: number | null;
+    hoverIndex?: number | null;
+    currentIndex?: number;
 }
 
-export function ImageItem({ folder, fileName, url }: ImageItemProps) {
+export function ImageItem({
+    fileName,
+    url,
+    dragIndex = null,
+    hoverIndex = null,
+    currentIndex,
+}: ImageItemProps) {
     const [copied, setCopied] = useState(false);
+
+    const isDragging = dragIndex !== null && currentIndex === dragIndex;
+    const isHoverTarget = hoverIndex !== null && currentIndex === hoverIndex;
 
     const copyUrl = useCallback(() => {
         navigator.clipboard.writeText(url);
@@ -19,7 +30,9 @@ export function ImageItem({ folder, fileName, url }: ImageItemProps) {
 
     return (
         <div
-            className="relative aspect-[1/1] rounded-[8px] overflow-hidden border border-[var(--border)] bg-bg-secondary group cursor-pointer"
+            className={`relative aspect-[1/1] rounded-[8px] overflow-hidden border border-[var(--border)] bg-bg-secondary group cursor-pointer ${
+                isDragging ? 'opacity-50 ring-[2px] ring-accent' : ''
+            } ${isHoverTarget ? 'ring-[2px] ring-accent/50' : ''}`}
             onClick={copyUrl}
             title={`Click to copy ImageKit URL: ${url}`}
         >

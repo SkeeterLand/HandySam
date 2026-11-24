@@ -174,8 +174,14 @@ export async function listImagesInFolder(
     const collection = await getImagesCollection();
     if (!collection) return [];
 
+    // If a custom sort order has been saved for this folder, respect it.
+    const hasCustomSort = await collection
+        .findOne({ folder, sortOrder: { $exists: true } });
+
     let sort: Record<string, 1 | -1> = {};
-    if (sortBy === 'name') {
+    if (hasCustomSort) {
+        sort = { sortOrder: 1, fileName: 1 };
+    } else if (sortBy === 'name') {
         sort = { fileName: 1 };
     } else if (sortBy === 'date-asc') {
         sort = { uploadedAt: 1 };
@@ -189,4 +195,36 @@ export async function listImagesInFolder(
         .toArray();
 
     return docs.map((d) => d.fileName);
+}
+
+/**
+ * Persist a custom drag-and-drop sort order for all images in a folder.
+ * orderedFileNames is the fileNames in the desired display order.
+ */
+export async function saveSortOrder(
+    folder: string,
+    orderedFileNames: string[]
+): Promise<{ ok: boolean; error: string | null }> {
+    const authorized = await isAdmin();
+    if (!authorized) {
+        return { ok: false, error: 'Unauthorized' };
+    }
+
+    const collection = await getImagesCollection();
+    if (!collection) {
+        return { ok: false, error: 'Database unavailable' };
+    }
+
+    const bulkOps = orderedFileNames.map((fileName, index) => ({
+        updateOne: {
+            filter: { folder, fileName },
+            update: { $set: { sortOrder: index } },
+        },
+    }));
+
+    if (bulkOps.length > 0) {
+        await collection.bulkWrite(bulkOps);
+    }
+
+    return { ok: true, error: null };
 }

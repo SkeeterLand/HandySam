@@ -19,6 +19,9 @@ export type ProjectImageSort = 'name' | 'date-asc' | 'date-desc';
  *  2. MongoDB 'images' collection — images uploaded via the admin panel
  *  3. Build-time manifest — local images not yet migrated
  *
+ * If a custom sort order has been saved in the admin gallery for this
+ * folder, it is respected regardless of which source the images come from.
+ *
  * Returns full ImageKit URLs like
  * https://ik.imagekit.io/rdojme0pvr/bathroom/bathroom-01.webp
  * or root-relative fallback paths like /images/bathroom/bathroom-01.webp.
@@ -44,6 +47,7 @@ export async function listProjectImages(
     normalizedFolder = normalizedFolder.replace(/^\/+/, '').replace(/^images\//, '');
 
     // 1. ImageKit List API — lists all files actually in the ImageKit folder
+    let urls: string[] = [];
     if (base && IK_PRIVATE_KEY) {
         try {
             const auth = 'Basic ' + Buffer.from(IK_PRIVATE_KEY + ':').toString('base64');
@@ -55,7 +59,7 @@ export async function listProjectImages(
                 const data = await resp.json();
                 const files = (data.list || []).filter((f: any) => f.fileType === 'image');
                 if (files.length > 0) {
-                    return sortImageUrls(files.map((f: any) => f.url), sortBy);
+                    urls = files.map((f: any) => f.url);
                 }
             } else {
                 const errText = await resp.text();
@@ -70,27 +74,47 @@ export async function listProjectImages(
 
     // 2. MongoDB 'images' collection — images uploaded via the admin panel
     const collection = await getImagesCollection();
+    let customOrder: Record<string, number> | null = null;
     if (collection) {
-        let sort: Record<string, 1 | -1> = {};
-        if (sortBy === 'name') {
-            sort = { fileName: 1 };
-        } else if (sortBy === 'date-asc') {
-            sort = { uploadedAt: 1 };
-        } else {
-            sort = { uploadedAt: -1 };
-        }
-        const docs = await collection
-            .find({ folder: normalizedFolder })
-            .sort(sort)
+        // Check for a custom sort order saved from the admin gallery
+        const sortDocs = await collection
+            .find({ folder: normalizedFolder, sortOrder: { $exists: true } })
+            .sort({ sortOrder: 1 })
             .toArray();
-        if (docs.length > 0) {
-            return docs.map((d) => d.url).filter(Boolean);
+        if (sortDocs.length > 0) {
+            customOrder = Object.fromEntries(
+                sortDocs.map((d) => [d.fileName, d.sortOrder])
+            );
+        }
+
+        // If no ImageKit results, fall back to MongoDB image docs
+        if (urls.length === 0) {
+            let sort: Record<string, 1 | -1> = {};
+            if (sortBy === 'name') {
+                sort = { fileName: 1 };
+            } else if (sortBy === 'date-asc') {
+                sort = { uploadedAt: 1 };
+            } else {
+                sort = { uploadedAt: -1 };
+            }
+            const docs = await collection
+                .find({ folder: normalizedFolder })
+                .sort(sort)
+                .toArray();
+            urls = docs.map((d) => d.url).filter(Boolean);
         }
     }
 
     // 3. Build-time manifest fallback (local images not yet migrated)
-    const images = (imageManifest as Record<string, string[]>)[normalizedFolder] || [];
-    const urls = images.map((file) => imageUrl(normalizedFolder, file));
+    if (urls.length === 0) {
+        const images = (imageManifest as Record<string, string[]>)[normalizedFolder] || [];
+        urls = images.map((file) => imageUrl(normalizedFolder, file));
+    }
+
+    // Apply custom sort order if one was saved; otherwise use name/date sort
+    if (customOrder) {
+        return applyCustomSort(urls, customOrder);
+    }
     return sortBy === 'name' ? urls : sortImageUrls(urls, sortBy);
 }
 
@@ -107,4 +131,20 @@ function sortImageUrls(urls: string[], sortBy: ProjectImageSort): string[] {
         }
         return aFile.localeCompare(bFile);
     });
+}
+
+/**
+ * Reorder image URLs according to a custom fileName -> sortIndex map.
+ * Images not in the map are appended at the end in their original order.
+ */
+function applyCustomSort(
+    urls: string[],
+    customOrder: Record<string, number>
+): string[] {
+    const indexed = urls.map((url) => {
+        const fileName = url.split('/').pop() ?? '';
+        return { url, index: customOrder[fileName] ?? Infinity };
+    });
+    indexed.sort((a, b) => a.index - b.index);
+    return indexed.map((i) => i.url);
 }
