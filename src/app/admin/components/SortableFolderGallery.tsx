@@ -38,19 +38,20 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
             e.dataTransfer.dropEffect = 'move';
             const rect = e.currentTarget.getBoundingClientRect();
             const isBelow = e.clientY > rect.top + rect.height / 2;
-            setDropIndex(isBelow ? index + 1 : index);
+            const targetIndex = isBelow ? index + 1 : index;
+            setDropIndex(targetIndex);
+            // Stash the exact computed target so onDrop uses the same value
+            e.dataTransfer.setData('targetIndex', String(targetIndex));
         },
         []
     );
 
     const onDrop = useCallback(
-        (e: React.DragEvent, index: number) => {
+        (e: React.DragEvent) => {
             e.preventDefault();
             const draggedIndex = Number(e.dataTransfer.getData('text/plain'));
-            // Compute target synchronously from the element that received the drop
-            const rect = e.currentTarget.getBoundingClientRect();
-            const isBelow = e.clientY > rect.top + rect.height / 2;
-            const targetIndex = isBelow ? index + 1 : index;
+            // Use the exact target computed during hover — never re-read DOM
+            const targetIndex = Number(e.dataTransfer.getData('targetIndex') ?? draggedIndex);
             if (draggedIndex === null || draggedIndex === targetIndex) {
                 setDragIndex(null);
                 setDropIndex(null);
@@ -118,7 +119,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                             draggable
                             onDragStart={(e) => onDragStart(e, index)}
                             onDragOver={(e) => onDragOver(e, index)}
-                            onDrop={(e) => onDrop(e, index)}
+                            onDrop={onDrop}
                         >
                             <ImageItem
                                 fileName={fileName}
