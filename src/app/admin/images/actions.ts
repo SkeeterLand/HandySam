@@ -134,7 +134,7 @@ export async function uploadImage(
         if (!uploadResp.ok) {
             const errText = await uploadResp.text();
             console.error('ImageKit upload failed:', errText);
-            return { ok: false, error: 'ImageKit upload failed' };
+            return { ok: false, error: `ImageKit upload failed: ${uploadResp.status}` };
         }
 
         await uploadResp.json();
@@ -156,7 +156,7 @@ export async function uploadImage(
         return { ok: true, error: null };
     } catch (err) {
         console.error('Failed to upload image:', err);
-        return { ok: false, error: 'Failed to upload image' };
+        return { ok: false, error: `Upload failed: ${err instanceof Error ? err.message : 'unknown error'}` };
     }
 }
 
