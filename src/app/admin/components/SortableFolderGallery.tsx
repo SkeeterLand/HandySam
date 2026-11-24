@@ -31,7 +31,6 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
         e.dataTransfer.setData('text/plain', String(index));
         e.dataTransfer.setDragImage(new Image(), 0, 0);
         setDragIndex(index);
-        setDropIndex(index);
     }, []);
 
     const onDragOver = useCallback(
@@ -46,14 +45,44 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
         []
     );
 
+    // Compute target index from cursor position at drop time so it's exact,
+    // not reliant on potentially-stale dropIndex state.
+    const computeDropIndex = useCallback(
+        (e: React.DragEvent): number => {
+            if (!containerRef.current) return 0;
+            const items = Array.from(
+                containerRef.current.querySelectorAll<HTMLElement>('[data-item-index]')
+            );
+            const x = e.clientX;
+            const y = e.clientY;
+
+            for (let i = 0; i < items.length; i++) {
+                const rect = items[i].getBoundingClientRect();
+                if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+                    const isBelow = y > rect.top + rect.height / 2;
+                    return isBelow ? i + 1 : i;
+                }
+            }
+
+            // Cursor not over any item — drop at beginning or end
+            if (items.length > 0) {
+                const first = items[0].getBoundingClientRect();
+                const last = items[items.length - 1].getBoundingClientRect();
+                if (y < first.top) return 0;
+                if (y > last.bottom) return items.length;
+            }
+            return items.length;
+        },
+        []
+    );
+
     const onDrop = useCallback(
         (e: React.DragEvent) => {
             e.preventDefault();
             const draggedIndex = Number(e.dataTransfer.getData('text/plain'));
-            const targetIndex = dropIndex ?? draggedIndex;
+            const targetIndex = computeDropIndex(e);
             if (draggedIndex === null || draggedIndex === targetIndex) {
                 setDragIndex(null);
-                setDropIndex(null);
                 return;
             }
 
@@ -66,9 +95,8 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
             });
 
             setDragIndex(null);
-            setDropIndex(null);
         },
-        [dropIndex]
+        [computeDropIndex]
     );
 
     const handleSave = async () => {
@@ -109,6 +137,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                     {images.map((fileName, index) => (
                         <div
                             key={fileName}
+                            data-item-index={String(index)}
                             className="relative aspect-[1/1] rounded-[8px] overflow-hidden border border-[var(--border)] bg-bg-secondary transition-all duration-150"
                             style={{
                                 opacity: isDragging(index) ? 0.45 : 1,
