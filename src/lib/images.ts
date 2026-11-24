@@ -24,9 +24,19 @@ function imageUrl(folder: string, fileName: string): string {
 export async function listProjectImages(folder: string): Promise<string[]> {
     if (!folder) return [];
 
-    // Normalize: strip 'images/' prefix so 'images/bathroom' and 'bathroom' match
-    const normalizedFolder = folder.replace(/^images\//, '');
     const base = IK_URL_ENDPOINT?.replace(/\/$/, '') || '';
+
+    // Normalize folder: handle both 'bathroom' / 'images/bathroom' and full
+    // ImageKit URLs like 'https://ik.imagekit.io/rdojme0pvr/bathroom'
+    let normalizedFolder: string;
+    if (base && folder.startsWith(base)) {
+        // Strip the ImageKit endpoint so we get just '/bathroom'
+        normalizedFolder = folder.slice(base.length);
+    } else {
+        normalizedFolder = folder;
+    }
+    // Strip leading '/' and 'images/' prefix so paths match across sources
+    normalizedFolder = normalizedFolder.replace(/^\/+/, '').replace(/^images\//, '');
 
     // 1. ImageKit List API — lists all files actually in the ImageKit folder
     if (base && IK_PRIVATE_KEY) {
