@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState, useTransition } from 'react';
+import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 import { listImagesInFolder, saveSortOrder } from '@/app/admin/images/actions';
 import { ImageItem } from './ImageItem';
 import { Button } from '@/components/ui/Button';
@@ -15,9 +15,8 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     const [isPending, startTransition] = useTransition();
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
-    useEffect(() => {
-        listImagesInFolder(folder).then(setImages);
-    }, [folder]);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const itemRects = useRef<Map<string, DOMRect>>(new Map());
 
     // Drag-and-drop state
     // dragIndex: index of the item being dragged
@@ -25,28 +24,74 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     const [dragIndex, setDragIndex] = useState<number | null>(null);
     const [dropIndex, setDropIndex] = useState<number | null>(null);
 
+    useEffect(() => {
+        listImagesInFolder(folder).then(setImages);
+    }, [folder]);
+
+    // Keep rects updated for drop-target hit testing
+    useEffect(() => {
+        itemRects.current.clear();
+        if (!containerRef.current) return;
+        containerRef.current.querySelectorAll<HTMLElement>('[data-drop-item]').forEach((el) => {
+            itemRects.current.set(el.dataset.dropItem!, el.getBoundingClientRect());
+        });
+    }, [images]);
+
+    // Window-level drag tracking so drop target is accurate even in grid gaps
+    useEffect(() => {
+        if (dragIndex === null) return;
+
+        const handleDrag = (e: DragEvent) => {
+            const x = e.clientX;
+            const y = e.clientY;
+            const list = Array.from(itemRects.current.entries());
+
+            // Find which item rect the cursor is over
+            let targetIndex: number | null = null;
+            for (const [key, rect] of list) {
+                if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+                    targetIndex = Number(key);
+                    break;
+                }
+            }
+
+            // If not over any item, figure out if cursor is above/below the whole list
+            if (targetIndex === null && list.length > 0) {
+                const first = list[0][1];
+                const last = list[list.length - 1][1];
+                if (y < first.top) {
+                    targetIndex = 0;
+                } else if (y > last.bottom) {
+                    targetIndex = images.length;
+                }
+            }
+
+            if (targetIndex !== null && targetIndex !== dropIndex) {
+                setDropIndex(targetIndex);
+            }
+        };
+
+        const handleDragEnd = () => {
+            setDragIndex(null);
+            setDropIndex(null);
+        };
+
+        window.addEventListener('dragover', handleDrag);
+        window.addEventListener('dragend', handleDragEnd);
+        return () => {
+            window.removeEventListener('dragover', handleDrag);
+            window.removeEventListener('dragend', handleDragEnd);
+        };
+    }, [dragIndex, images.length, dropIndex]);
+
     const onDragStart = useCallback((e: React.DragEvent, index: number) => {
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', String(index));
-        // Keep native ghost image under cursor for best feel
+        // Use a tiny transparent drag image so native ghost still shows
+        e.dataTransfer.setDragImage(new Image(), 0, 0);
         setDragIndex(index);
         setDropIndex(index);
     }, []);
-
-    const onDragEnter = useCallback((e: React.DragEvent, index: number) => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        setDropIndex(index);
-    }, []);
-
-    const onDragOver = useCallback(
-        (e: React.DragEvent, index: number) => {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-            setDropIndex(index);
-        },
-        []
-    );
 
     const onDrop = useCallback(
         (e: React.DragEvent, targetIndex: number) => {
@@ -71,11 +116,6 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
         },
         []
     );
-
-    const onDragEnd = useCallback(() => {
-        setDragIndex(null);
-        setDropIndex(null);
-    }, []);
 
     const handleSave = async () => {
         startTransition(async () => {
@@ -107,21 +147,25 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
             {images.length === 0 ? (
                 <p className="text-muted text-sm">No images</p>
             ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-[8px]">
+                <div
+                    ref={containerRef}
+                    className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-[8px]"
+                >
                     {images.map((fileName, index) => (
                         <>
-                            {/* Drop slot before this item — appears immediately on drag enter */}
+                            {/* Drop slot before this item */}
                             {isDropTarget(index) && (
                                 <div
+                                    data-drop-slot={String(index)}
                                     className="aspect-[1/1] rounded-[8px] border-[3px] border-dashed border-accent bg-accent/20"
                                     style={{ visibility: dragIndex === index ? 'hidden' : 'visible' }}
                                 />
                             )}
                             <div
                                 key={fileName}
+                                data-drop-item={String(index)}
                                 className="relative aspect-[1/1] rounded-[8px] overflow-hidden border border-[var(--border)] bg-bg-secondary transition-all duration-100"
                                 style={{
-                                    // Neighboring items shift slightly to show direction
                                     transform:
                                         dragIndex !== null &&
                                         index > dragIndex &&
@@ -132,24 +176,19 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                                               index > (dropIndex ?? index)
                                             ? 'translateX(3px)'
                                             : 'none',
-                                    // Target item scales up slightly
                                     scale: isDropTarget(index) && !isDragging(index) ? 1.05 : 1,
                                     zIndex: isDropTarget(index) && !isDragging(index) ? 5 : 1,
+                                    opacity: isDragging(index) ? 0.5 : 1,
                                 }}
                                 draggable
                                 onDragStart={(e) => onDragStart(e, index)}
-                                onDragEnter={(e) => onDragEnter(e, index)}
-                                onDragOver={(e) => onDragOver(e, index)}
                                 onDrop={(e) => onDrop(e, index)}
-                                onDragEnd={onDragEnd}
                             >
                                 <ImageItem
                                     fileName={fileName}
                                     url={`${baseUrl}/${folder}/${fileName}`}
-                                    dragIndex={dragIndex}
-                                    hoverIndex={dropIndex}
-                                    currentIndex={index}
                                 />
+
                                 {isDragging(index) && (
                                     <span className="absolute -top-[2px] -right-[2px] z-[10] text-[10px] font-bold text-white bg-accent/90 px-[4px] py-[1px] rounded-[3px]">
                                         Moving
@@ -164,6 +203,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                             {/* Drop slot after the last item */}
                             {index === images.length - 1 && isDropTarget(images.length) && (
                                 <div
+                                    data-drop-slot={String(images.length)}
                                     className="aspect-[1/1] rounded-[8px] border-[3px] border-dashed border-accent bg-accent/20"
                                 />
                             )}
