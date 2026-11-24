@@ -30,25 +30,6 @@ function sanitizeFolder(name: string): string {
         .join('/');
 }
 
-/**
- * Given a folder like 'bathroom', find the highest existing N in
- * bathroom-N.webp from MongoDB metadata and return N+1. If none exist,
- * returns 1.
- */
-function nextIncrementedNumber(folder: string, existingFiles: Array<{ fileName: string }>): number {
-    const baseName = folder.split('/').pop()!;
-    const regex = new RegExp(`^${baseName}-(\\d+)\\.webp$`);
-    let max = 0;
-    for (const file of existingFiles) {
-        const match = file.fileName.match(regex);
-        if (match) {
-            const n = parseInt(match[1], 10);
-            if (n > max) max = n;
-        }
-    }
-    return max + 1;
-}
-
 export async function uploadImage(
     _prevState: { ok: boolean; error: string | null } | null,
     formData: FormData
@@ -100,9 +81,12 @@ export async function uploadImage(
             .webp({ quality: QUALITY, effort: 4 })
             .toBuffer();
 
-        const baseName = safeFolder.split('/').pop()!;
+        const originalName = (file.name ?? '').toLowerCase().replace(/\s+/g, '-');
+        const originalBase = originalName.replace(/\.[^/.]+$/, ''); // strip extension
+        let fileName = originalName.endsWith('.webp')
+            ? originalName
+            : `${originalBase}.webp`;
 
-        // Determine next incremented filename from MongoDB metadata
         const collection = await getImagesCollection();
         let existingFiles: Array<{ fileName: string }> = [];
         if (collection) {
@@ -112,8 +96,19 @@ export async function uploadImage(
             existingFiles = docs.map((d) => ({ fileName: d.fileName }));
         }
 
-        const nextNum = nextIncrementedNumber(baseName, existingFiles);
-        const fileName = `${baseName}-${nextNum}.webp`;
+        const existingNames = new Set(existingFiles.map((d) => d.fileName));
+        if (existingNames.has(fileName)) {
+            const regex = new RegExp(`^${originalBase}-(\\d+)\\.webp$`);
+            let max = 0;
+            for (const existing of existingFiles) {
+                const match = existing.fileName.match(regex);
+                if (match) {
+                    const n = parseInt(match[1], 10);
+                    if (n > max) max = n;
+                }
+            }
+            fileName = `${originalBase}-${max + 1}.webp`;
+        }
 
         // Upload to ImageKit
         const form = new FormData();
@@ -147,7 +142,7 @@ export async function uploadImage(
         await collection.insertOne({
             folder: safeFolder,
             fileName,
-            baseName,
+            baseName: originalBase,
             url: imageUrl,
             uploadedAt: new Date(),
             size: webpBuffer.byteLength,
