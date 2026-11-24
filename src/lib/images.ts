@@ -121,12 +121,20 @@ export async function listProjectImages(
 }
 
 /**
+ * Extract the clean filename from an image URL, stripping any query
+ * parameters ImageKit appends (e.g. ?updatedAt=1234567890).
+ */
+function fileNameFromUrl(url: string): string {
+    return url.split('/').pop()?.split('?')[0] ?? '';
+}
+
+/**
  * Sort image URLs by filename embedded in the URL.
  */
 function sortImageUrls(urls: string[], sortBy: ProjectImageSort): string[] {
     return [...urls].sort((a, b) => {
-        const aFile = a.split('/').pop() ?? '';
-        const bFile = b.split('/').pop() ?? '';
+        const aFile = fileNameFromUrl(a);
+        const bFile = fileNameFromUrl(b);
         if (sortBy === 'date-asc' || sortBy === 'date-desc') {
             // No date info in URLs — fall back to filename order
             return aFile.localeCompare(bFile);
@@ -144,7 +152,7 @@ function applyCustomSort(
     customOrder: Record<string, number>
 ): string[] {
     const indexed = urls.map((url) => {
-        const fileName = url.split('/').pop() ?? '';
+        const fileName = fileNameFromUrl(url);
         return { url, index: customOrder[fileName] ?? Infinity };
     });
     indexed.sort((a, b) => a.index - b.index);
