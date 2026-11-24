@@ -14,4 +14,7 @@ node_modules
 .claude/settings.local*.json
 .claude/settings.local copy.json
 
+# Wrangler local cache
+.wrangler/
+
 .git
