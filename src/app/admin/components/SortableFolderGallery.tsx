@@ -26,7 +26,11 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     const [dropIndex, setDropIndex] = useState<number | null>(null);
 
     useEffect(() => {
-        listImagesInFolder(folder).then(setImages);
+        console.log('SortableFolderGallery useEffect: fetching images for', folder);
+        listImagesInFolder(folder).then((imgs) => {
+            console.log('SortableFolderGallery images loaded:', { folder, count: imgs.length, imgs });
+            setImages(imgs);
+        });
     }, [folder]);
 
     // Keep rects updated for drop-target hit testing
