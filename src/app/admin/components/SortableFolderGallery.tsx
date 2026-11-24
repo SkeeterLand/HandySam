@@ -14,6 +14,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     const [images, setImages] = useState<string[]>([]);
     const [isSaving, setIsSaving] = useState(false);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+    const [hoveredTargetIndex, setHoveredTargetIndex] = useState<number | null>(null);
 
     useEffect(() => {
         listImagesInFolder(folder).then(setImages);
@@ -60,15 +61,24 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
         }
     };
 
-    const arrowBtn = (disabled: boolean, onClick: () => void, label: string) => (
+    const arrowBtn = (
+        disabled: boolean,
+        onClick: () => void,
+        label: string,
+        targetIndex: number | null,
+    ) => (
         <button
+            onMouseEnter={() => setHoveredTargetIndex(targetIndex)}
+            onMouseLeave={() => setHoveredTargetIndex(null)}
             onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 onClick();
             }}
             disabled={disabled}
-            className={`w-[20px] h-[20px] rounded-full bg-white/95 text-accent text-[10px] font-bold flex items-center justify-center border border-accent/30 shadow-sm hover:bg-accent hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed ${disabled ? '' : ''}`}
+            className={`w-[20px] h-[20px] rounded-full bg-white/95 text-accent text-[10px] font-bold flex items-center justify-center border border-accent/30 shadow-sm hover:bg-accent hover:text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                disabled ? '' : ''
+            }`}
             title={label}
         >
             {label}
@@ -88,7 +98,14 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                         {images.map((fileName, index) => (
                             <div
                                 key={fileName}
-                                className="relative aspect-[1/1] rounded-[8px] overflow-hidden border border-[var(--border)] bg-bg-secondary group"
+                                className="relative aspect-[1/1] rounded-[8px] overflow-hidden bg-bg-secondary group"
+                                style={{
+                                    border:
+                                        hoveredTargetIndex === index
+                                            ? '3px dashed #f59e0b'
+                                            : '1px solid var(--border)',
+                                    borderRadius: '8px',
+                                }}
                             >
                                 <ImageItem
                                     fileName={fileName}
@@ -100,7 +117,8 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                                     {arrowBtn(
                                         !canLeft(index),
                                         () => moveItem(index, index - 1),
-                                        '←'
+                                        '←',
+                                        index - 1
                                     )}
                                 </div>
                                 {/* Right edge arrow */}
@@ -108,7 +126,8 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                                     {arrowBtn(
                                         !canRight(index),
                                         () => moveItem(index, index + 1),
-                                        '→'
+                                        '→',
+                                        index + 1
                                     )}
                                 </div>
                                 {/* Top center arrow */}
@@ -116,7 +135,8 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                                     {arrowBtn(
                                         !canUp(index),
                                         () => moveItem(index, index - COLS),
-                                        '↑'
+                                        '↑',
+                                        index - COLS
                                     )}
                                 </div>
                                 {/* Bottom center arrow */}
@@ -124,7 +144,8 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                                     {arrowBtn(
                                         !canDown(index),
                                         () => moveItem(index, index + COLS),
-                                        '↓'
+                                        '↓',
+                                        index + COLS
                                     )}
                                 </div>
                                 {/* Top-left corner arrow */}
@@ -132,7 +153,8 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                                     {arrowBtn(
                                         !canLeft(index) || !canUp(index),
                                         () => moveItem(index, index - COLS - 1),
-                                        '↖'
+                                        '↖',
+                                        index - COLS - 1
                                     )}
                                 </div>
                                 {/* Top-right corner arrow */}
@@ -140,7 +162,8 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                                     {arrowBtn(
                                         !canRight(index) || !canUp(index),
                                         () => moveItem(index, index - COLS + 1),
-                                        '↗'
+                                        '↗',
+                                        index - COLS + 1
                                     )}
                                 </div>
                                 {/* Bottom-left corner arrow */}
@@ -148,7 +171,8 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                                     {arrowBtn(
                                         !canLeft(index) || !canDown(index),
                                         () => moveItem(index, index + COLS - 1),
-                                        '↙'
+                                        '↙',
+                                        index + COLS - 1
                                     )}
                                 </div>
                                 {/* Bottom-right corner arrow */}
@@ -156,7 +180,8 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                                     {arrowBtn(
                                         !canRight(index) || !canDown(index),
                                         () => moveItem(index, index + COLS + 1),
-                                        '↘'
+                                        '↘',
+                                        index + COLS + 1
                                     )}
                                 </div>
                             </div>
