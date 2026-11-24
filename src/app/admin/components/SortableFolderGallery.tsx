@@ -119,11 +119,13 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     );
 
     const handleSave = async () => {
+        console.log('handleSave called:', { folder, imageCount: images.length, images });
         setIsSaving(true);
         setSaveStatus('saving');
         setSaveError(null);
         try {
             const result = await saveSortOrder(folder, images);
+            console.log('saveSortOrder returned:', result);
             if (result.ok) {
                 setSaveStatus('saved');
                 setTimeout(() => setSaveStatus('idle'), 1500);
@@ -157,7 +159,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                     className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-[8px]"
                 >
                     {images.map((fileName, index) => (
-                        <>
+                        <div key={fileName}>
                             {/* Drop slot before this item */}
                             {isDropTarget(index) && (
                                 <div
@@ -167,7 +169,6 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                                 />
                             )}
                             <div
-                                key={fileName}
                                 data-drop-item={String(index)}
                                 className="relative aspect-[1/1] rounded-[8px] overflow-hidden border border-[var(--border)] bg-bg-secondary transition-all duration-100"
                                 style={{
@@ -207,7 +208,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                                     className="aspect-[1/1] rounded-[8px] border-[3px] border-dashed border-accent bg-accent/20"
                                 />
                             )}
-                        </>
+                        </div>
                     ))}
                 </div>
             )}
