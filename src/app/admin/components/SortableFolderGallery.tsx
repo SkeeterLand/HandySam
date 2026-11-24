@@ -194,11 +194,6 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                                         Moving
                                     </span>
                                 )}
-                                {isDropTarget(index) && !isDragging(index) && (
-                                    <span className="absolute top-[4px] left-[4px] z-[10] text-[10px] font-bold text-accent bg-white/90 px-[4px] py-[1px] rounded-[3px] border border-accent/30">
-                                        Drop here
-                                    </span>
-                                )}
                             </div>
                             {/* Drop slot after the last item */}
                             {index === images.length - 1 && isDropTarget(images.length) && (
