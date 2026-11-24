@@ -15,5 +15,11 @@
       "binding": "WORKER_SELF_REFERENCE",
       "service": "handysam"
     }
-  ]
+  ],
+   "vars": {
+    "IMAGEKIT_PUBLIC_KEY": "public_Wmy9zTeALzf4ZO8Cw6t5j202WT4=", 
+    "IMAGEKIT_URL_ENDPOINT": "https://ik.imagekit.io/rdojme0pvr"
+  },
 }
+
+ 
