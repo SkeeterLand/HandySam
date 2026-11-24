@@ -44,10 +44,13 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     );
 
     const onDrop = useCallback(
-        (e: React.DragEvent) => {
+        (e: React.DragEvent, index: number) => {
             e.preventDefault();
             const draggedIndex = Number(e.dataTransfer.getData('text/plain'));
-            const targetIndex = dropIndex ?? draggedIndex;
+            // Compute target synchronously from the element that received the drop
+            const rect = e.currentTarget.getBoundingClientRect();
+            const isBelow = e.clientY > rect.top + rect.height / 2;
+            const targetIndex = isBelow ? index + 1 : index;
             if (draggedIndex === null || draggedIndex === targetIndex) {
                 setDragIndex(null);
                 setDropIndex(null);
@@ -65,7 +68,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
             setDragIndex(null);
             setDropIndex(null);
         },
-        [dropIndex]
+        []
     );
 
     const handleSave = async () => {
@@ -115,7 +118,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                             draggable
                             onDragStart={(e) => onDragStart(e, index)}
                             onDragOver={(e) => onDragOver(e, index)}
-                            onDrop={onDrop}
+                            onDrop={(e) => onDrop(e, index)}
                         >
                             <ImageItem
                                 fileName={fileName}
