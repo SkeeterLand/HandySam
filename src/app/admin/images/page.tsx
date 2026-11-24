@@ -4,14 +4,14 @@ import { ImageUploadForm } from '@/app/admin/components/ImageUploadForm';
 import { SortableFolderGallery } from '@/app/admin/components/SortableFolderGallery';
 
 const IK_URL_ENDPOINT = process.env.IMAGEKIT_URL_ENDPOINT;
-const baseUrl = IK_URL_ENDPOINT?.replace(/\/$/, '') || '';
 
 export default async function AdminImagesPage({
     searchParams,
 }: {
-    searchParams?: { [key: string]: string | string[] | undefined };
+    searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-    const sort = (searchParams?.sort as 'name' | 'date-asc' | 'date-desc') ?? 'name';
+    const params = await searchParams;
+    const sort = (params?.sort as 'name' | 'date-asc' | 'date-desc') ?? 'name';
     const folders = await listImageFolders();
 
     return (
