@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { listImagesInFolder, saveSortOrder } from '@/app/admin/images/actions';
 import { ImageItem } from './ImageItem';
 import { Button } from '@/components/ui/Button';
@@ -15,13 +15,9 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     const [isSaving, setIsSaving] = useState(false);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
-    // Ref for the computed drop target — immune to React state staleness
-    // between onDragOver and onDrop events
-    const dropIndexRef = useRef<number | null>(null);
-
-    // dragIndex: index of the item being dragged
-    // dropIndex: where it would be inserted (0 to images.length) — for visual only
+    // dragIndex: index of the item being dragged (visual opacity only)
     const [dragIndex, setDragIndex] = useState<number | null>(null);
+    // dropIndex: visual indicator only — actual reorder reads DOM on drop
     const [dropIndex, setDropIndex] = useState<number | null>(null);
 
     useEffect(() => {
@@ -31,10 +27,8 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     const onDragStart = useCallback((e: React.DragEvent, index: number) => {
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', String(index));
-        // Let browser show the default drag ghost
+        // Let the browser show the default drag ghost image
         setDragIndex(index);
-        setDropIndex(index);
-        dropIndexRef.current = index;
     }, []);
 
     const onDragOver = useCallback(
@@ -43,23 +37,22 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
             e.dataTransfer.dropEffect = 'move';
             const rect = e.currentTarget.getBoundingClientRect();
             const isBelow = e.clientY > rect.top + rect.height / 2;
-            const targetIndex = isBelow ? index + 1 : index;
-            setDropIndex(targetIndex);
-            dropIndexRef.current = targetIndex;
+            setDropIndex(isBelow ? index + 1 : index);
         },
         []
     );
 
     const onDrop = useCallback(
-        (e: React.DragEvent) => {
+        (e: React.DragEvent, index: number) => {
             e.preventDefault();
             const draggedIndex = Number(e.dataTransfer.getData('text/plain'));
-            // Use ref value — always current, never stale from React state
-            const targetIndex = dropIndexRef.current ?? draggedIndex;
+            // Read target index directly from the DOM element that received the drop
+            const rect = e.currentTarget.getBoundingClientRect();
+            const isBelow = e.clientY > rect.top + rect.height / 2;
+            const targetIndex = isBelow ? index + 1 : index;
             if (draggedIndex === null || draggedIndex === targetIndex) {
                 setDragIndex(null);
                 setDropIndex(null);
-                dropIndexRef.current = null;
                 return;
             }
 
@@ -73,7 +66,6 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
 
             setDragIndex(null);
             setDropIndex(null);
-            dropIndexRef.current = null;
         },
         []
     );
@@ -125,7 +117,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                             draggable
                             onDragStart={(e) => onDragStart(e, index)}
                             onDragOver={(e) => onDragOver(e, index)}
-                            onDrop={onDrop}
+                            onDrop={(e) => onDrop(e, index)}
                         >
                             <ImageItem
                                 fileName={fileName}
