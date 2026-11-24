@@ -9,6 +9,8 @@ function imageUrl(folder: string, fileName: string): string {
     return base ? `${base}/${folder}/${fileName}` : `/images/${folder}/${fileName}`;
 }
 
+export type ProjectImageSort = 'name' | 'date-asc' | 'date-desc';
+
 /**
  * List all images for a project folder.
  *
@@ -21,7 +23,10 @@ function imageUrl(folder: string, fileName: string): string {
  * https://ik.imagekit.io/rdojme0pvr/bathroom/bathroom-01.webp
  * or root-relative fallback paths like /images/bathroom/bathroom-01.webp.
  */
-export async function listProjectImages(folder: string): Promise<string[]> {
+export async function listProjectImages(
+    folder: string,
+    sortBy: ProjectImageSort = 'name',
+): Promise<string[]> {
     if (!folder) return [];
 
     const base = IK_URL_ENDPOINT?.replace(/\/$/, '') || '';
@@ -50,7 +55,7 @@ export async function listProjectImages(folder: string): Promise<string[]> {
                 const data = await resp.json();
                 const files = (data.list || []).filter((f: any) => f.fileType === 'image');
                 if (files.length > 0) {
-                    return files.map((f: any) => f.url);
+                    return sortImageUrls(files.map((f: any) => f.url), sortBy);
                 }
             } else {
                 const errText = await resp.text();
@@ -66,9 +71,17 @@ export async function listProjectImages(folder: string): Promise<string[]> {
     // 2. MongoDB 'images' collection — images uploaded via the admin panel
     const collection = await getImagesCollection();
     if (collection) {
+        let sort: Record<string, 1 | -1> = {};
+        if (sortBy === 'name') {
+            sort = { fileName: 1 };
+        } else if (sortBy === 'date-asc') {
+            sort = { uploadedAt: 1 };
+        } else {
+            sort = { uploadedAt: -1 };
+        }
         const docs = await collection
             .find({ folder: normalizedFolder })
-            .sort({ uploadedAt: -1 })
+            .sort(sort)
             .toArray();
         if (docs.length > 0) {
             return docs.map((d) => d.url).filter(Boolean);
@@ -77,5 +90,21 @@ export async function listProjectImages(folder: string): Promise<string[]> {
 
     // 3. Build-time manifest fallback (local images not yet migrated)
     const images = (imageManifest as Record<string, string[]>)[normalizedFolder] || [];
-    return images.map((file) => imageUrl(normalizedFolder, file));
+    const urls = images.map((file) => imageUrl(normalizedFolder, file));
+    return sortBy === 'name' ? urls : sortImageUrls(urls, sortBy);
+}
+
+/**
+ * Sort image URLs by filename embedded in the URL.
+ */
+function sortImageUrls(urls: string[], sortBy: ProjectImageSort): string[] {
+    return [...urls].sort((a, b) => {
+        const aFile = a.split('/').pop() ?? '';
+        const bFile = b.split('/').pop() ?? '';
+        if (sortBy === 'date-asc' || sortBy === 'date-desc') {
+            // No date info in URLs — fall back to filename order
+            return aFile.localeCompare(bFile);
+        }
+        return aFile.localeCompare(bFile);
+    });
 }
