@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { listImagesInFolder, saveSortOrder } from '@/app/admin/images/actions';
 import { ImageItem } from './ImageItem';
 import { Button } from '@/components/ui/Button';
@@ -14,8 +14,6 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     const [images, setImages] = useState<string[]>([]);
     const [isSaving, setIsSaving] = useState(false);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-
-    const containerRef = useRef<HTMLDivElement>(null);
 
     // dragIndex: index of the item being dragged
     // dropIndex: where it would be inserted (0 to images.length)
@@ -31,53 +29,25 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
         e.dataTransfer.setData('text/plain', String(index));
         e.dataTransfer.setDragImage(new Image(), 0, 0);
         setDragIndex(index);
+        setDropIndex(index);
     }, []);
 
-    // Compute target index from cursor position — used by both onDragOver
-    // (visual feedback) and onDrop (actual reorder) so they always match.
-    const computeDropIndex = useCallback(
-        (e: React.DragEvent): number => {
-            if (!containerRef.current) return 0;
-            const items = Array.from(
-                containerRef.current.querySelectorAll<HTMLElement>('[data-item-index]')
-            );
-            const x = e.clientX;
-            const y = e.clientY;
-
-            for (let i = 0; i < items.length; i++) {
-                const rect = items[i].getBoundingClientRect();
-                if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-                    const isBelow = y > rect.top + rect.height / 2;
-                    return isBelow ? i + 1 : i;
-                }
-            }
-
-            // Cursor not over any item — drop at beginning or end
-            if (items.length > 0) {
-                const first = items[0].getBoundingClientRect();
-                const last = items[items.length - 1].getBoundingClientRect();
-                if (y < first.top) return 0;
-                if (y > last.bottom) return items.length;
-            }
-            return items.length;
-        },
-        []
-    );
-
     const onDragOver = useCallback(
-        (e: React.DragEvent) => {
+        (e: React.DragEvent, index: number) => {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
-            setDropIndex(computeDropIndex(e));
+            const rect = e.currentTarget.getBoundingClientRect();
+            const isBelow = e.clientY > rect.top + rect.height / 2;
+            setDropIndex(isBelow ? index + 1 : index);
         },
-        [computeDropIndex]
+        []
     );
 
     const onDrop = useCallback(
         (e: React.DragEvent) => {
             e.preventDefault();
             const draggedIndex = Number(e.dataTransfer.getData('text/plain'));
-            const targetIndex = computeDropIndex(e);
+            const targetIndex = dropIndex ?? draggedIndex;
             if (draggedIndex === null || draggedIndex === targetIndex) {
                 setDragIndex(null);
                 setDropIndex(null);
@@ -95,7 +65,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
             setDragIndex(null);
             setDropIndex(null);
         },
-        [computeDropIndex]
+        [dropIndex]
     );
 
     const handleSave = async () => {
@@ -129,35 +99,22 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
             {images.length === 0 ? (
                 <p className="text-muted text-sm">No images</p>
             ) : (
-                <div
-                    ref={containerRef}
-                    className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-[8px]"
-                >
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-[8px]">
                     {images.map((fileName, index) => (
                         <div
                             key={fileName}
-                            data-item-index={String(index)}
                             className="relative aspect-[1/1] rounded-[8px] overflow-hidden border border-[var(--border)] bg-bg-secondary transition-all duration-150"
                             style={{
                                 opacity: isDragging(index) ? 0.45 : 1,
-                                transform:
-                                    dragIndex !== null &&
-                                    index > dragIndex &&
-                                    index < (dropIndex ?? index)
-                                        ? 'translateX(-4px)'
-                                        : dragIndex !== null &&
-                                          index < dragIndex &&
-                                          index > (dropIndex ?? index)
-                                        ? 'translateX(4px)'
-                                        : 'none',
-                                border: isDropTarget(index) && !isDragging(index)
-                                    ? '3px dashed #f59e0b'
-                                    : '1px solid var(--border)',
+                                border:
+                                    isDropTarget(index) && !isDragging(index)
+                                        ? '3px dashed #f59e0b'
+                                        : '1px solid var(--border)',
                                 borderRadius: '8px',
                             }}
                             draggable
                             onDragStart={(e) => onDragStart(e, index)}
-                            onDragOver={onDragOver}
+                            onDragOver={(e) => onDragOver(e, index)}
                             onDrop={onDrop}
                         >
                             <ImageItem
@@ -176,18 +133,6 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                             )}
                         </div>
                     ))}
-                    {/* Drop zone after the last item */}
-                    {dropIndex === images.length && dragIndex !== null && (
-                        <div
-                            onDragOver={(e) => {
-                                e.preventDefault();
-                                e.dataTransfer.dropEffect = 'move';
-                                setDropIndex(images.length);
-                            }}
-                            onDrop={onDrop}
-                            className="aspect-[1/1] rounded-[8px] border-[3px] border-dashed border-accent bg-accent/20"
-                        />
-                    )}
                 </div>
             )}
 
