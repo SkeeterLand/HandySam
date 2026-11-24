@@ -155,46 +155,123 @@ export async function uploadImage(
     }
 }
 
-export async function listImageFolders(): Promise<string[]> {
-    const collection = await getImagesCollection();
-    if (!collection) return [];
+export type ImageSort = 'name' | 'date-asc' | 'date-desc';
 
-    const folders = await collection
-        .distinct('folder')
-        .catch(() => [] as string[]);
-    return folders.sort();
+/**
+ * Normalize a folder path for cross-source matching:
+ * strip leading '/' and 'images/' prefix so 'images/porch/screened'
+ * and 'porch/screened' both match ImageKit's '/porch/screened'.
+ */
+function normalizeFolder(folder: string): string {
+    return folder.replace(/^\/+/, '').replace(/^images\//, '');
 }
 
-export type ImageSort = 'name' | 'date-asc' | 'date-desc';
+/**
+ * Discover all image folders in ImageKit by listing files at the root
+ * and extracting the directory portion of each filePath.
+ */
+async function listImageFoldersFromImageKit(): Promise<string[]> {
+    if (!IK_PRIVATE_KEY || !IK_URL_ENDPOINT) return [];
+
+    try {
+        const auth = ikAuthHeader();
+        const resp = await fetch(
+            `https://api.imagekit.io/v1/files?path=/&limit=1000`,
+            { headers: { Authorization: auth } }
+        );
+        if (!resp.ok) return [];
+        const data = await resp.json();
+        const files = Array.isArray(data) ? data : (data.list || []);
+        const folders = new Set<string>();
+        for (const f of files) {
+            if (f.fileType !== 'image') continue;
+            const filePath = f.filePath || f.path || '';
+            const parts = filePath.replace(/^\/+/, '').split('/');
+            if (parts.length > 1) {
+                folders.add(parts.slice(0, -1).join('/'));
+            }
+        }
+        return [...folders].sort();
+    } catch {
+        return [];
+    }
+}
+
+export async function listImageFolders(): Promise<string[]> {
+    const mongoFolders: string[] = [];
+    const collection = await getImagesCollection();
+    if (collection) {
+        const docs = await collection
+            .distinct('folder')
+            .catch(() => [] as string[]);
+        mongoFolders.push(...docs.sort());
+    }
+
+    const ikFolders = await listImageFoldersFromImageKit();
+
+    // Merge, deduplicate, sort
+    const all = new Set([...mongoFolders, ...ikFolders]);
+    return [...all].sort();
+}
 
 export async function listImagesInFolder(
     folder: string,
     sortBy: ImageSort = 'name',
 ): Promise<string[]> {
     const collection = await getImagesCollection();
-    if (!collection) return [];
+    const normalizedFolder = normalizeFolder(folder);
 
-    // If a custom sort order has been saved for this folder, respect it.
-    const hasCustomSort = await collection
-        .findOne({ folder, sortOrder: { $exists: true } });
+    // 1. MongoDB 'images' collection — images uploaded via the admin panel
+    if (collection) {
+        // If a custom sort order has been saved for this folder, respect it.
+        const hasCustomSort = await collection
+            .findOne({ folder: normalizedFolder, sortOrder: { $exists: true } });
 
-    let sort: Record<string, 1 | -1> = {};
-    if (hasCustomSort) {
-        sort = { sortOrder: 1, fileName: 1 };
-    } else if (sortBy === 'name') {
-        sort = { fileName: 1 };
-    } else if (sortBy === 'date-asc') {
-        sort = { uploadedAt: 1 };
-    } else {
-        sort = { uploadedAt: -1 };
+        let sort: Record<string, 1 | -1> = {};
+        if (hasCustomSort) {
+            sort = { sortOrder: 1, fileName: 1 };
+        } else if (sortBy === 'name') {
+            sort = { fileName: 1 };
+        } else if (sortBy === 'date-asc') {
+            sort = { uploadedAt: 1 };
+        } else {
+            sort = { uploadedAt: -1 };
+        }
+
+        const docs = await collection
+            .find({ folder: normalizedFolder })
+            .sort(sort)
+            .toArray();
+
+        if (docs.length > 0) {
+            return docs.map((d) => d.fileName);
+        }
     }
 
-    const docs = await collection
-        .find({ folder })
-        .sort(sort)
-        .toArray();
+    // 2. ImageKit List API fallback — folders that only exist in ImageKit
+    if (IK_PRIVATE_KEY) {
+        try {
+            const auth = ikAuthHeader();
+            const resp = await fetch(
+                `https://api.imagekit.io/v1/files?path=/${normalizedFolder}&limit=1000`,
+                { headers: { Authorization: auth } }
+            );
+            if (resp.ok) {
+                const data = await resp.json();
+                const files = Array.isArray(data) ? data : (data.list || []);
+                const imageFiles = files.filter((f: any) => f.fileType === 'image');
+                if (imageFiles.length > 0) {
+                    return imageFiles
+                        .map((f: any) => f.name)
+                        .sort((a: string, b: string) => a.localeCompare(b));
+                }
+            }
+        } catch (err) {
+            console.error('ImageKit list error:', err);
+        }
+    }
 
-    return docs.map((d) => d.fileName);
+    return [];
 }
 
 /**
