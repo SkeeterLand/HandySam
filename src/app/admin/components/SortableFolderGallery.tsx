@@ -14,14 +14,11 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     const [images, setImages] = useState<string[]>([]);
     const [isSaving, setIsSaving] = useState(false);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-    const [saveError, setSaveError] = useState<string | null>(null);
 
     const containerRef = useRef<HTMLDivElement>(null);
-    const itemRects = useRef<Map<string, DOMRect>>(new Map());
 
-    // Drag-and-drop state
     // dragIndex: index of the item being dragged
-    // dropIndex: where the item would be inserted (0 to images.length)
+    // dropIndex: where it would be inserted (0 to images.length)
     const [dragIndex, setDragIndex] = useState<number | null>(null);
     const [dropIndex, setDropIndex] = useState<number | null>(null);
 
@@ -29,70 +26,25 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
         listImagesInFolder(folder).then(setImages);
     }, [folder]);
 
-    // Keep rects updated for drop-target hit testing
-    useEffect(() => {
-        itemRects.current.clear();
-        if (!containerRef.current) return;
-        containerRef.current.querySelectorAll<HTMLElement>('[data-drop-item]').forEach((el) => {
-            itemRects.current.set(el.dataset.dropItem!, el.getBoundingClientRect());
-        });
-    }, [images]);
-
-    // Window-level drag tracking so drop target is accurate even in grid gaps
-    useEffect(() => {
-        if (dragIndex === null) return;
-
-        const handleDrag = (e: DragEvent) => {
-            const x = e.clientX;
-            const y = e.clientY;
-            const list = Array.from(itemRects.current.entries());
-
-            // Find which item rect the cursor is over
-            let targetIndex: number | null = null;
-            for (const [key, rect] of list) {
-                if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-                    targetIndex = Number(key);
-                    break;
-                }
-            }
-
-            // If not over any item, figure out if cursor is above/below the whole list
-            if (targetIndex === null && list.length > 0) {
-                const first = list[0][1];
-                const last = list[list.length - 1][1];
-                if (y < first.top) {
-                    targetIndex = 0;
-                } else if (y > last.bottom) {
-                    targetIndex = images.length;
-                }
-            }
-
-            if (targetIndex !== null && targetIndex !== dropIndex) {
-                setDropIndex(targetIndex);
-            }
-        };
-
-        const handleDragEnd = () => {
-            setDragIndex(null);
-            setDropIndex(null);
-        };
-
-        window.addEventListener('dragover', handleDrag);
-        window.addEventListener('dragend', handleDragEnd);
-        return () => {
-            window.removeEventListener('dragover', handleDrag);
-            window.removeEventListener('dragend', handleDragEnd);
-        };
-    }, [dragIndex, images.length, dropIndex]);
-
     const onDragStart = useCallback((e: React.DragEvent, index: number) => {
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', String(index));
-        // Use a tiny transparent drag image so native ghost still shows
         e.dataTransfer.setDragImage(new Image(), 0, 0);
         setDragIndex(index);
         setDropIndex(index);
     }, []);
+
+    const onDragOver = useCallback(
+        (e: React.DragEvent, index: number) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            // Determine if cursor is in top or bottom half of the item
+            const rect = e.currentTarget.getBoundingClientRect();
+            const isBelow = e.clientY > rect.top + rect.height / 2;
+            setDropIndex(isBelow ? index + 1 : index);
+        },
+        []
+    );
 
     const onDrop = useCallback(
         (e: React.DragEvent, targetIndex: number) => {
@@ -119,24 +71,19 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     );
 
     const handleSave = async () => {
-        console.log('handleSave called:', { folder, imageCount: images.length, images });
         setIsSaving(true);
         setSaveStatus('saving');
-        setSaveError(null);
         try {
             const result = await saveSortOrder(folder, images);
-            console.log('saveSortOrder returned:', result);
             if (result.ok) {
                 setSaveStatus('saved');
                 setTimeout(() => setSaveStatus('idle'), 1500);
             } else {
                 setSaveStatus('error');
-                setSaveError(result.error ?? 'Unknown error');
                 setTimeout(() => setSaveStatus('idle'), 3000);
             }
-        } catch (err) {
+        } catch {
             setSaveStatus('error');
-            setSaveError(err instanceof Error ? err.message : 'Unknown error');
             setTimeout(() => setSaveStatus('idle'), 3000);
         } finally {
             setIsSaving(false);
@@ -159,69 +106,59 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                     className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-[8px]"
                 >
                     {images.map((fileName, index) => (
-                        <div key={fileName}>
-                            {/* Drop slot before this item */}
-                            {isDropTarget(index) && (
-                                <div
-                                    data-drop-slot={String(index)}
-                                    onDragOver={(e) => {
-                                        e.preventDefault();
-                                        e.dataTransfer.dropEffect = 'move';
-                                        setDropIndex(index);
-                                    }}
-                                    onDrop={(e) => onDrop(e, index)}
-                                    className="aspect-[1/1] rounded-[8px] border-[3px] border-dashed border-accent bg-accent/20"
-                                    style={{ visibility: dragIndex === index ? 'hidden' : 'visible' }}
-                                />
+                        <div
+                            key={fileName}
+                            className="relative aspect-[1/1] rounded-[8px] overflow-hidden border border-[var(--border)] bg-bg-secondary transition-all duration-150"
+                            style={{
+                                opacity: isDragging(index) ? 0.45 : 1,
+                                transform:
+                                    dragIndex !== null &&
+                                    index > dragIndex &&
+                                    index < (dropIndex ?? index)
+                                        ? 'translateX(-4px)'
+                                        : dragIndex !== null &&
+                                          index < dragIndex &&
+                                          index > (dropIndex ?? index)
+                                        ? 'translateX(4px)'
+                                        : 'none',
+                                border: isDropTarget(index) && !isDragging(index)
+                                    ? '3px dashed #f59e0b'
+                                    : '1px solid var(--border)',
+                                borderRadius: '8px',
+                            }}
+                            draggable
+                            onDragStart={(e) => onDragStart(e, index)}
+                            onDragOver={(e) => onDragOver(e, index)}
+                            onDrop={(e) => onDrop(e, index)}
+                        >
+                            <ImageItem
+                                fileName={fileName}
+                                url={`${baseUrl}/${folder}/${fileName}`}
+                            />
+                            {isDragging(index) && (
+                                <span className="absolute -top-[2px] -right-[2px] z-[10] text-[10px] font-bold text-white bg-accent/90 px-[4px] py-[1px] rounded-[3px]">
+                                    Moving
+                                </span>
                             )}
-                            <div
-                                data-drop-item={String(index)}
-                                className="relative aspect-[1/1] rounded-[8px] overflow-hidden border border-[var(--border)] bg-bg-secondary transition-all duration-100"
-                                style={{
-                                    transform:
-                                        dragIndex !== null &&
-                                        index > dragIndex &&
-                                        index < (dropIndex ?? index)
-                                            ? 'translateX(-3px)'
-                                            : dragIndex !== null &&
-                                              index < dragIndex &&
-                                              index > (dropIndex ?? index)
-                                            ? 'translateX(3px)'
-                                            : 'none',
-                                    scale: isDropTarget(index) && !isDragging(index) ? 1.05 : 1,
-                                    zIndex: isDropTarget(index) && !isDragging(index) ? 5 : 1,
-                                    opacity: isDragging(index) ? 0.5 : 1,
-                                }}
-                                draggable
-                                onDragStart={(e) => onDragStart(e, index)}
-                                onDrop={(e) => onDrop(e, index)}
-                            >
-                                <ImageItem
-                                    fileName={fileName}
-                                    url={`${baseUrl}/${folder}/${fileName}`}
-                                />
-
-                                {isDragging(index) && (
-                                    <span className="absolute -top-[2px] -right-[2px] z-[10] text-[10px] font-bold text-white bg-accent/90 px-[4px] py-[1px] rounded-[3px]">
-                                        Moving
-                                    </span>
-                                )}
-                            </div>
-                            {/* Drop slot after the last item */}
-                            {index === images.length - 1 && isDropTarget(images.length) && (
-                                <div
-                                    data-drop-slot={String(images.length)}
-                                    onDragOver={(e) => {
-                                        e.preventDefault();
-                                        e.dataTransfer.dropEffect = 'move';
-                                        setDropIndex(images.length);
-                                    }}
-                                    onDrop={(e) => onDrop(e, images.length)}
-                                    className="aspect-[1/1] rounded-[8px] border-[3px] border-dashed border-accent bg-accent/20"
-                                />
+                            {isDropTarget(index) && !isDragging(index) && (
+                                <span className="absolute top-[4px] left-[4px] z-[10] text-[10px] font-bold text-accent bg-white/90 px-[4px] py-[1px] rounded-[3px] border border-accent/30">
+                                    Drop
+                                </span>
                             )}
                         </div>
                     ))}
+                    {/* Drop zone after the last item */}
+                    {dropIndex === images.length && dragIndex !== null && (
+                        <div
+                            onDragOver={(e) => {
+                                e.preventDefault();
+                                e.dataTransfer.dropEffect = 'move';
+                                setDropIndex(images.length);
+                            }}
+                            onDrop={(e) => onDrop(e, images.length)}
+                            className="aspect-[1/1] rounded-[8px] border-[3px] border-dashed border-accent bg-accent/20"
+                        />
+                    )}
                 </div>
             )}
 
@@ -238,7 +175,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                     </Button>
                     {saveStatus === 'error' && (
                         <span className="text-[10px] text-red-400 font-medium flex items-center gap-[2px]">
-                            Failed to save: {saveError}
+                            Failed to save
                         </span>
                     )}
                     {saveStatus === 'saved' && (
