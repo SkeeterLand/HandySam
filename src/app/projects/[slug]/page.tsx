@@ -24,7 +24,7 @@ export default async function ProjectPage({
     }
 
     const folder = project.imageFolder;
-    const galleryImages = folder ? listProjectImages(folder) : [];
+    const galleryImages = folder ? await listProjectImages(folder) : [];
 
     return (
         <>
