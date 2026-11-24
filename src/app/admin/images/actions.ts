@@ -32,14 +32,15 @@ function sanitizeFolder(name: string): string {
 
 /**
  * Given a folder like 'bathroom', find the highest existing N in
- * bathroom-N.webp and return N+1. If none exist, returns 1.
+ * bathroom-N.webp from MongoDB metadata and return N+1. If none exist,
+ * returns 1.
  */
-function nextIncrementedNumber(folder: string, files: Array<{ name: string }>): number {
+function nextIncrementedNumber(folder: string, existingFiles: Array<{ fileName: string }>): number {
     const baseName = folder.split('/').pop()!;
     const regex = new RegExp(`^${baseName}-(\\d+)\\.webp$`);
     let max = 0;
-    for (const file of files) {
-        const match = file.name.match(regex);
+    for (const file of existingFiles) {
+        const match = file.fileName.match(regex);
         if (match) {
             const n = parseInt(match[1], 10);
             if (n > max) max = n;
@@ -99,23 +100,16 @@ export async function uploadImage(
             .webp({ quality: QUALITY, effort: 4 })
             .toBuffer();
 
-        // Determine next incremented filename: bathroom-14.webp
-        // For subfolders like ceiling/coffered, use coffered-14.webp
         const baseName = safeFolder.split('/').pop()!;
 
-        // List existing files in this ImageKit folder to find next increment number
-        const listResp = await fetch(
-            `https://upload.imagekit.io/api/v1/files?folderName=/${safeFolder}`,
-            { headers: { Authorization: ikAuthHeader() } }
-        );
-        let existingFiles: Array<{ name: string }> = [];
-        if (listResp.ok) {
-            const listData = await listResp.json();
-            existingFiles = (listData?.result ?? []).map(
-                (f: { filePath?: string; name?: string }) => ({
-                    name: f.name ?? f.filePath?.split('/').pop() ?? '',
-                })
-            );
+        // Determine next incremented filename from MongoDB metadata
+        const collection = await getImagesCollection();
+        let existingFiles: Array<{ fileName: string }> = [];
+        if (collection) {
+            const docs = await collection
+                .find({ folder: safeFolder }, { projection: { fileName: 1 } })
+                .toArray();
+            existingFiles = docs.map((d) => ({ fileName: d.fileName }));
         }
 
         const nextNum = nextIncrementedNumber(baseName, existingFiles);
@@ -147,7 +141,6 @@ export async function uploadImage(
         const imageUrl = IK_URL_ENDPOINT.replace(/\/$/, '') + '/' + safeFolder + '/' + fileName;
 
         // Store image metadata in MongoDB
-        const collection = await getImagesCollection();
         if (!collection) {
             return { ok: false, error: 'Database unavailable' };
         }
