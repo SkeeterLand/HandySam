@@ -28,7 +28,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     const onDragStart = useCallback((e: React.DragEvent, index: number) => {
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', String(index));
-        // No custom drag image — keep native ghost image under cursor
+        // Keep native ghost image under cursor for best feel
         setDragIndex(index);
         setDropIndex(index);
     }, []);
@@ -110,22 +110,31 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-[8px]">
                     {images.map((fileName, index) => (
                         <>
-                            {/* Drop slot before this item */}
+                            {/* Drop slot before this item — appears immediately on drag enter */}
                             {isDropTarget(index) && (
                                 <div
-                                    className="aspect-[1/1] rounded-[8px] border-[2px] border-dashed border-accent bg-accent/10"
+                                    className="aspect-[1/1] rounded-[8px] border-[3px] border-dashed border-accent bg-accent/20"
                                     style={{ visibility: dragIndex === index ? 'hidden' : 'visible' }}
                                 />
                             )}
                             <div
                                 key={fileName}
-                                className="relative aspect-[1/1] rounded-[8px] overflow-hidden border border-[var(--border)] bg-bg-secondary transition-transform duration-100"
+                                className="relative aspect-[1/1] rounded-[8px] overflow-hidden border border-[var(--border)] bg-bg-secondary transition-all duration-100"
                                 style={{
-                                    transform: dragIndex !== null && index > dragIndex && index < (dropIndex ?? index)
-                                        ? 'translateX(-4px)'
-                                        : dragIndex !== null && index < dragIndex && index > (dropIndex ?? index)
-                                        ? 'translateX(4px)'
-                                        : 'none',
+                                    // Neighboring items shift slightly to show direction
+                                    transform:
+                                        dragIndex !== null &&
+                                        index > dragIndex &&
+                                        index < (dropIndex ?? index)
+                                            ? 'translateX(-3px)'
+                                            : dragIndex !== null &&
+                                              index < dragIndex &&
+                                              index > (dropIndex ?? index)
+                                            ? 'translateX(3px)'
+                                            : 'none',
+                                    // Target item scales up slightly
+                                    scale: isDropTarget(index) && !isDragging(index) ? 1.05 : 1,
+                                    zIndex: isDropTarget(index) && !isDragging(index) ? 5 : 1,
                                 }}
                                 draggable
                                 onDragStart={(e) => onDragStart(e, index)}
@@ -146,11 +155,16 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
                                         Moving
                                     </span>
                                 )}
+                                {isDropTarget(index) && !isDragging(index) && (
+                                    <span className="absolute top-[4px] left-[4px] z-[10] text-[10px] font-bold text-accent bg-white/90 px-[4px] py-[1px] rounded-[3px] border border-accent/30">
+                                        Drop here
+                                    </span>
+                                )}
                             </div>
                             {/* Drop slot after the last item */}
                             {index === images.length - 1 && isDropTarget(images.length) && (
                                 <div
-                                    className="aspect-[1/1] rounded-[8px] border-[2px] border-dashed border-accent bg-accent/10"
+                                    className="aspect-[1/1] rounded-[8px] border-[3px] border-dashed border-accent bg-accent/20"
                                 />
                             )}
                         </>
