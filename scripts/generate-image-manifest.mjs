@@ -11,11 +11,10 @@ function isImage(file) {
 }
 
 function main() {
-    const manifest = {};
+    let manifest = {};
 
     if (!fs.existsSync(IMAGES_DIR)) {
-        fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + '\n');
-        console.log('Wrote ' + MANIFEST_PATH + ' with 0 folders (no public/images dir)');
+        console.log('No public/images dir — leaving existing manifest untouched');
         return;
     }
 
@@ -23,6 +22,11 @@ function main() {
         const full = path.join(IMAGES_DIR, f);
         return fs.statSync(full).isDirectory() && !f.startsWith('.');
     });
+
+    if (folders.length === 0) {
+        console.log('No image folders in public/images — leaving existing manifest untouched');
+        return;
+    }
 
     for (const folder of folders) {
         const folderPath = path.join(IMAGES_DIR, folder);

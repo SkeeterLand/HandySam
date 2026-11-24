@@ -57,9 +57,11 @@ export async function listProjectImages(
             );
             if (resp.ok) {
                 const data = await resp.json();
-                const files = (data.list || []).filter((f: any) => f.fileType === 'image');
-                if (files.length > 0) {
-                    urls = files.map((f: any) => f.url);
+                // ImageKit List API returns a top-level array, not { list: [...] }
+                const files = Array.isArray(data) ? data : (data.list || []);
+                const imageFiles = files.filter((f: any) => f.fileType === 'image');
+                if (imageFiles.length > 0) {
+                    urls = imageFiles.map((f: any) => f.url);
                 }
             } else {
                 const errText = await resp.text();
