@@ -50,19 +50,8 @@ function ImageGallery({
                 Existing Images
             </h3>
 
-            {folders.length === 0 && (
-                <p className="text-muted">No image folders found.</p>
-            )}
             {!selectedFolder ? (
-                <>
-                    {folders.map((folder) => (
-                        <SortableFolderGallery
-                            key={folder}
-                            folder={folder}
-                            baseUrl={baseUrl}
-                        />
-                    ))}
-                </>
+                <p className="text-muted">Select a folder to view its images.</p>
             ) : (
                 <SortableFolderGallery
                     key={selectedFolder}
