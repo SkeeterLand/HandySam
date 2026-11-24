@@ -19,55 +19,62 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
         listImagesInFolder(folder).then(setImages);
     }, [folder]);
 
-    // HTML5 drag-and-drop state
+    // Drag-and-drop state
+    // dragIndex: the index of the item being dragged
+    // dropIndex: where the item would be inserted (0 to images.length)
     const [dragIndex, setDragIndex] = useState<number | null>(null);
-    const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+    const [dropIndex, setDropIndex] = useState<number | null>(null);
 
     const onDragStart = useCallback((e: React.DragEvent, index: number) => {
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', String(index));
+        // Use a small drag image so the real item stays visible in place
+        e.dataTransfer.setDragImage(new Image(), 0, 0);
         setDragIndex(index);
+        setDropIndex(index);
     }, []);
 
     const onDragOver = useCallback(
         (e: React.DragEvent, index: number) => {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'move';
-            setHoverIndex(index);
+            setDropIndex(index);
         },
         []
     );
 
     const onDragLeave = useCallback(() => {
-        setHoverIndex(null);
+        // Only clear if we're not moving onto another item
     }, []);
 
     const onDrop = useCallback(
-        (e: React.DragEvent, index: number) => {
+        (e: React.DragEvent, targetIndex: number) => {
             e.preventDefault();
             const draggedIndex = Number(e.dataTransfer.getData('text/plain'));
-            if (draggedIndex === index || draggedIndex === null) {
+            if (draggedIndex === null || draggedIndex === targetIndex) {
                 setDragIndex(null);
-                setHoverIndex(null);
+                setDropIndex(null);
                 return;
             }
 
             setImages((current) => {
                 const next = [...current];
                 const removed = next.splice(draggedIndex, 1)[0];
-                next.splice(index, 0, removed);
+                // Adjust target index if we dragged an item from before it
+                const adjusted = draggedIndex < targetIndex ? targetIndex - 1 : targetIndex;
+                next.splice(adjusted, 0, removed);
                 return next;
             });
 
             setDragIndex(null);
-            setHoverIndex(null);
+            setDropIndex(null);
         },
         []
     );
 
     const onDragEnd = useCallback(() => {
         setDragIndex(null);
-        setHoverIndex(null);
+        setDropIndex(null);
     }, []);
 
     const handleSave = async () => {
@@ -89,6 +96,9 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
         });
     };
 
+    const isDragging = (index: number) => dragIndex !== null && index === dragIndex;
+    const isDropTarget = (index: number) => dropIndex !== null && index === dropIndex;
+
     return (
         <div className="space-y-[12px]">
             <h4 className="text-[13px] font-bold text-accent uppercase tracking-[0.5px]">
@@ -97,28 +107,45 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
             {images.length === 0 ? (
                 <p className="text-muted text-sm">No images</p>
             ) : (
-                <div
-                    className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-[8px]"
-                >
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-[8px]">
                     {images.map((fileName, index) => (
-                        <div
-                            key={fileName}
-                            className="relative aspect-[1/1] rounded-[8px] overflow-hidden border border-[var(--border)] bg-bg-secondary"
-                            draggable
-                            onDragStart={(e) => onDragStart(e, index)}
-                            onDragOver={(e) => onDragOver(e, index)}
-                            onDragLeave={onDragLeave}
-                            onDrop={(e) => onDrop(e, index)}
-                            onDragEnd={onDragEnd}
-                        >
-                            <ImageItem
-                                fileName={fileName}
-                                url={`${baseUrl}/${folder}/${fileName}`}
-                                dragIndex={dragIndex}
-                                hoverIndex={hoverIndex}
-                                currentIndex={index}
-                            />
-                        </div>
+                        <>
+                            {/* Drop slot before this item — shows where the dragged item will land */}
+                            {isDropTarget(index) && (
+                                <div
+                                    className="aspect-[1/1] rounded-[8px] border-[2px] border-dashed border-accent bg-accent/5"
+                                    style={{ visibility: dragIndex === index ? 'hidden' : 'visible' }}
+                                />
+                            )}
+                            <div
+                                key={fileName}
+                                className="relative aspect-[1/1] rounded-[8px] overflow-hidden border border-[var(--border)] bg-bg-secondary"
+                                draggable
+                                onDragStart={(e) => onDragStart(e, index)}
+                                onDragOver={(e) => onDragOver(e, index)}
+                                onDrop={(e) => onDrop(e, index)}
+                                onDragEnd={onDragEnd}
+                            >
+                                <ImageItem
+                                    fileName={fileName}
+                                    url={`${baseUrl}/${folder}/${fileName}`}
+                                    dragIndex={dragIndex}
+                                    hoverIndex={dropIndex}
+                                    currentIndex={index}
+                                />
+                                {isDragging(index) && (
+                                    <span className="absolute -top-[2px] -right-[2px] z-[10] text-[10px] font-bold text-white bg-accent/90 px-[4px] py-[1px] rounded-[3px]">
+                                        Moving
+                                    </span>
+                                )}
+                            </div>
+                            {/* Drop slot after the last item */}
+                            {index === images.length - 1 && isDropTarget(images.length) && (
+                                <div
+                                    className="aspect-[1/1] rounded-[8px] border-[2px] border-dashed border-accent bg-accent/5"
+                                />
+                            )}
+                        </>
                     ))}
                 </div>
             )}
@@ -144,4 +171,3 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
         </div>
     );
 }
-
