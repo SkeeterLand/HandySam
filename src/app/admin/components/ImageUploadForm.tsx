@@ -46,13 +46,13 @@ export function ImageUploadForm({ folders }: ImageUploadFormProps) {
                     <label className="block text-[13px] font-semibold text-muted uppercase tracking-[0.5px]">
                         Image Folder
                     </label>
-                    <select name="folder" className="w-full px-[14px] py-[14px] bg-card border border-[var(--border)] rounded-[10px] text-fg focus:outline-none focus:border-accent">
-                        {folders.map((f) => (
-                            <option key={f} value={f}>
-                                {f}
-                            </option>
-                        ))}
-                    </select>
+                    <input
+                        type="text"
+                        name="folder"
+                        placeholder="e.g. bathroom, ceiling/coffered"
+                        defaultValue={folders[0] ?? ''}
+                        className="w-full px-[14px] py-[14px] bg-card border border-[var(--border)] rounded-[10px] text-fg focus:outline-none focus:border-accent"
+                    />
                 </div>
                 <div className="space-y-[6px]">
                     <label className="block text-[13px] font-semibold text-muted uppercase tracking-[0.5px]">
