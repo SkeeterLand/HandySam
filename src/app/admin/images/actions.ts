@@ -165,13 +165,27 @@ export async function listImageFolders(): Promise<string[]> {
     return folders.sort();
 }
 
-export async function listImagesInFolder(folder: string): Promise<string[]> {
+export type ImageSort = 'name' | 'date-asc' | 'date-desc';
+
+export async function listImagesInFolder(
+    folder: string,
+    sortBy: ImageSort = 'name',
+): Promise<string[]> {
     const collection = await getImagesCollection();
     if (!collection) return [];
 
+    let sort: Record<string, 1 | -1> = {};
+    if (sortBy === 'name') {
+        sort = { fileName: 1 };
+    } else if (sortBy === 'date-asc') {
+        sort = { uploadedAt: 1 };
+    } else {
+        sort = { uploadedAt: -1 };
+    }
+
     const docs = await collection
         .find({ folder })
-        .sort({ uploadedAt: -1 })
+        .sort(sort)
         .toArray();
 
     return docs.map((d) => d.fileName);
