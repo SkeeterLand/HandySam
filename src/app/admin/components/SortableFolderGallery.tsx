@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { listImagesInFolder, saveSortOrder } from '@/app/admin/images/actions';
 import { ImageItem } from './ImageItem';
 import { Button } from '@/components/ui/Button';
@@ -15,8 +15,12 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     const [isSaving, setIsSaving] = useState(false);
     const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
+    // Ref for the computed drop target — immune to React state staleness
+    // between onDragOver and onDrop events
+    const dropIndexRef = useRef<number | null>(null);
+
     // dragIndex: index of the item being dragged
-    // dropIndex: where it would be inserted (0 to images.length)
+    // dropIndex: where it would be inserted (0 to images.length) — for visual only
     const [dragIndex, setDragIndex] = useState<number | null>(null);
     const [dropIndex, setDropIndex] = useState<number | null>(null);
 
@@ -27,9 +31,10 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
     const onDragStart = useCallback((e: React.DragEvent, index: number) => {
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', String(index));
-        e.dataTransfer.setDragImage(new Image(), 0, 0);
+        // Let browser show the default drag ghost
         setDragIndex(index);
         setDropIndex(index);
+        dropIndexRef.current = index;
     }, []);
 
     const onDragOver = useCallback(
@@ -40,8 +45,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
             const isBelow = e.clientY > rect.top + rect.height / 2;
             const targetIndex = isBelow ? index + 1 : index;
             setDropIndex(targetIndex);
-            // Stash the exact computed target so onDrop uses the same value
-            e.dataTransfer.setData('targetIndex', String(targetIndex));
+            dropIndexRef.current = targetIndex;
         },
         []
     );
@@ -50,11 +54,12 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
         (e: React.DragEvent) => {
             e.preventDefault();
             const draggedIndex = Number(e.dataTransfer.getData('text/plain'));
-            // Use the exact target computed during hover — never re-read DOM
-            const targetIndex = Number(e.dataTransfer.getData('targetIndex') ?? draggedIndex);
+            // Use ref value — always current, never stale from React state
+            const targetIndex = dropIndexRef.current ?? draggedIndex;
             if (draggedIndex === null || draggedIndex === targetIndex) {
                 setDragIndex(null);
                 setDropIndex(null);
+                dropIndexRef.current = null;
                 return;
             }
 
@@ -68,6 +73,7 @@ export function SortableFolderGallery({ folder, baseUrl }: SortableFolderGallery
 
             setDragIndex(null);
             setDropIndex(null);
+            dropIndexRef.current = null;
         },
         []
     );
