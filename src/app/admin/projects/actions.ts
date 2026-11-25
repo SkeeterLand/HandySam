@@ -40,6 +40,7 @@ export async function saveProject(
             alt: String(raw.alt ?? ''),
             subject: String(raw.subject ?? ''),
             description: String(raw.description ?? ''),
+            subDescription: String(raw.subDescription ?? ''),
             services,
             location: String(raw.location ?? ''),
             year: String(raw.year ?? ''),

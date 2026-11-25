@@ -13,6 +13,7 @@ interface ProjectEditFormProps {
         alt: string;
         subject: string;
         description: string;
+        subDescription: string;
         services: string[];
         location: string;
         year: string;
@@ -81,6 +82,11 @@ export default function ProjectEditForm({
                     label="Description"
                     name="description"
                     defaultValue={project.description}
+                />
+                <TextArea
+                    label="Sub Description"
+                    name="subDescription"
+                    defaultValue={project.subDescription ?? ''}
                 />
                 <TextField
                     label="Services (comma-separated)"

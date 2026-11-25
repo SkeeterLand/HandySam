@@ -64,6 +64,9 @@ export default async function ProjectPage({
                     <div>
                         <h2 className="text-[28px] font-black tracking-[-0.5px] mb-[16px] text-fg">About this project</h2>
                         <p className="text-[16px] text-muted leading-1.8 mb-[16px]">{project.description}</p>
+                        {project.subDescription && (
+                            <p className="text-[16px] text-muted leading-1.8 mb-[16px]">{project.subDescription}</p>
+                        )}
                         <p className="text-[16px] text-muted leading-1.8 mb-[16px]">
                             Services performed: {project.services.join(', ')}.
                         </p>

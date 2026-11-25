@@ -191,6 +191,7 @@ export interface HomepageProject {
     alt: string;
     subject: string;
     description: string;
+    subDescription: string;
     services: string[];
     location: string;
     year: string;
