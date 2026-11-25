@@ -346,39 +346,25 @@ function FeaturesSection({
   rowIsDirty: (prefix: string) => boolean;
   isPending: boolean;
 }) {
-  const [count, setCount] = useState(items.length);
+  const { markDirty } = useDirty();
 
   return (
     <div className="border border-[var(--border)] rounded-[12px] p-[20px] bg-card">
-      <div className="flex items-center justify-between mb-[16px]">
-        <h3 className="text-[16px] font-bold uppercase tracking-[0.5px] text-fg">
+      <div className="space-y-[6px]">
+        <label className="block text-[13px] font-semibold text-muted uppercase tracking-[0.5px]">
           {title}
-        </h3>
-        <button
-          type="button"
-          onClick={() => setCount((c) => c + 1)}
-          className="text-xs font-bold text-accent hover:text-accent-hover no-underline"
-        >
-          + Add
-        </button>
+        </label>
+        <textarea
+          name={`${section}`}
+          defaultValue={items.join(', ')}
+          rows={4}
+          onChange={() => rowIsDirty(section) && markDirty(section)}
+          className="w-full px-[14px] py-[14px] bg-card border border-[var(--border)] rounded-[10px] text-fg focus:outline-none focus:border-accent transition-[border-color] duration-200"
+        />
+        <p className="text-[11px] text-muted m-0">
+          Comma separated, e.g. Ceramic tile, Porcelain tile, Grout sealing
+        </p>
       </div>
-      {[...Array(count)].map((_, i) => (
-        <div
-          key={i}
-          className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px] p-[12px] border border-[var(--border)] rounded-[10px] bg-white/3"
-        >
-          <TextField
-            key="label"
-            label={`Feature ${i + 1}`}
-            name={`${section}-${i}`}
-            defaultValue={items[i] ?? ''}
-            showSaveIcon={false}
-          />
-          <div className="col-span-full flex justify-end pt-[2px]">
-            {rowIsDirty(`${section}-${i}-`) && <SaveIcon disabled={isPending} />}
-          </div>
-        </div>
-      ))}
     </div>
   );
 }

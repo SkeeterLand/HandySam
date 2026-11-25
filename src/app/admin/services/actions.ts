@@ -87,13 +87,12 @@ function parseBenefits(raw: Record<string, unknown>) {
 }
 
 function parseFeatures(raw: Record<string, unknown>): string[] {
-    const features: string[] = [];
-    let i = 0;
-    while (raw[`features-${i}`] !== undefined) {
-        features.push(String(raw[`features-${i}`] ?? ''));
-        i++;
-    }
-    return features;
+    const rawValue = raw['features'];
+    if (typeof rawValue !== 'string') return [];
+    return rawValue
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
 }
 
 function parseScopeItems(raw: Record<string, unknown>) {
