@@ -116,8 +116,10 @@ export default function Gallery({ projects }: GalleryProps) {
                                             style={{
                                                 display: '-webkit-box',
                                                 WebkitBoxOrient: 'vertical',
-                                                WebkitLineClamp: 3,
+                                                WebkitLineClamp: 6,
                                                 overflow: 'hidden',
+                                                minHeight: '110px',
+                                                maxHeight: '110px',
                                             }}
                                         >
                                             {item.subDescription}
