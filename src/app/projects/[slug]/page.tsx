@@ -47,9 +47,12 @@ export default async function ProjectPage({
                         <h1 className="m-0 text-[clamp(32px,5vw,48px)] font-black tracking-[-1px] leading-1.15 mb-[14px] text-fg">
                             {project.subject}
                         </h1>
-                        <p className="m-0 text-[17px] leading-1.7 text-[rgba(232,232,240,0.9)] max-w-[600px]">
+                        {/* <p className="m-0 text-[17px] leading-1.7 text-[rgba(232,232,240,0.9)] max-w-[600px]">
                             {project.description}
-                        </p>
+                        </p> */}
+                         {project.subDescription && (
+                            <p className="m-0 text-[17px] leading-1.7 text-[rgba(232,232,240,0.9)] max-w-[600px]">{project.subDescription}</p>
+                        )}
                         <div className="mt-[16px] flex flex-wrap gap-[8px]">
                             {project.services.map((s) => (
                                 <span key={s} className="text-[11px] font-semibold tracking-[0.5px] uppercase text-accent border border-accent/30 px-[10px] py-[3px] rounded-[4px]">
@@ -64,12 +67,12 @@ export default async function ProjectPage({
                     <div>
                         <h2 className="text-[28px] font-black tracking-[-0.5px] mb-[16px] text-fg">About this project</h2>
                         <p className="text-[16px] text-muted leading-1.8 mb-[16px]">{project.description}</p>
-                        {project.subDescription && (
+                        {/* {project.subDescription && (
                             <p className="text-[16px] text-muted leading-1.8 mb-[16px]">{project.subDescription}</p>
-                        )}
-                        <p className="text-[16px] text-muted leading-1.8 mb-[16px]">
+                        )} */}
+                        {/* <p className="text-[16px] text-muted leading-1.8 mb-[16px]">
                             Services performed: {project.services.join(', ')}.
-                        </p>
+                        </p> */}
                     </div> 
                 </div>
             </section>

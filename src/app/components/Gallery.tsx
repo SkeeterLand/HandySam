@@ -111,7 +111,17 @@ export default function Gallery({ projects }: GalleryProps) {
                                     </div>
                                     <div className="absolute inset-0 flex flex-col justify-end p-[20px] text-white bg-[linear-gradient(to_top,rgba(0,0,0,0.85)_0%,rgba(0,0,0,0.45)_50%,rgba(0,0,0,0.05)_100%)] opacity-0 group-hover:opacity-100 transition-opacity duration-350 z-2">
                                         <h3 className="text-[20px] font-bold mb-[6px]">{item.subject}</h3>
-                                        <p className="text-[13px] leading-1.4 mb-[10px] opacity-90">{item.description}</p>
+                                        <p
+                                            className="text-[13px] leading-1.4 mb-[10px] opacity-90"
+                                            style={{
+                                                display: '-webkit-box',
+                                                WebkitBoxOrient: 'vertical',
+                                                WebkitLineClamp: 3,
+                                                overflow: 'hidden',
+                                            }}
+                                        >
+                                            {item.subDescription}
+                                        </p>
                                         <span className="text-[12px] font-bold tracking-[0.5px] uppercase text-accent">
                                             View project &rarr;
                                         </span>
