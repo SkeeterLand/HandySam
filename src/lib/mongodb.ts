@@ -44,6 +44,7 @@ export interface ServiceContent {
         title: string;
         description: string;
     }>;
+    features: string[];
     scopeTitle: string;
     scopeItems: Array<{ label: string; items: string }>;
     scopeFooter: string;

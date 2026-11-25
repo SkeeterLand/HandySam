@@ -20,7 +20,7 @@ export function ImageItem({ fileName, url }: ImageItemProps) {
         <div
             className="relative aspect-[1/1] rounded-[8px] overflow-hidden border border-[var(--border)] bg-bg-secondary group cursor-pointer"
             onClick={copyUrl}
-            title={`Click to copy ImageKit URL: ${url}`}
+            title={`${url}`}
         >
             <img
                 src={url}

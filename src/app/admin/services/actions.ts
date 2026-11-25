@@ -28,6 +28,7 @@ export async function saveService(
             heroFooter: String(raw.heroFooter ?? ''),
             benefitsTitle: String(raw.benefitsTitle ?? ''),
             benefits: parseBenefits(raw),
+            features: parseFeatures(raw),
             scopeTitle: String(raw.scopeTitle ?? ''),
             scopeItems: parseScopeItems(raw),
             scopeFooter: String(raw.scopeFooter ?? ''),
@@ -83,6 +84,16 @@ function parseBenefits(raw: Record<string, unknown>) {
         i++;
     }
     return benefits;
+}
+
+function parseFeatures(raw: Record<string, unknown>): string[] {
+    const features: string[] = [];
+    let i = 0;
+    while (raw[`features-${i}`] !== undefined) {
+        features.push(String(raw[`features-${i}`] ?? ''));
+        i++;
+    }
+    return features;
 }
 
 function parseScopeItems(raw: Record<string, unknown>) {

@@ -173,6 +173,13 @@ function InnerForm({
             />
           </div>
 
+          <FeaturesSection
+            title="Features"
+            section="features"
+            items={service?.features ?? []}
+            rowIsDirty={rowIsDirty}
+            isPending={isPending}
+          />
           <BenefitsSection
             title="Benefits"
             section="benefits"
@@ -322,6 +329,56 @@ function TextArea({
           {dirty[name] && <SaveIcon disabled={isPending} />}
         </div>
       )}
+    </div>
+  );
+}
+
+function FeaturesSection({
+  title,
+  section,
+  items,
+  rowIsDirty,
+  isPending,
+}: {
+  title: string;
+  section: string;
+  items: string[];
+  rowIsDirty: (prefix: string) => boolean;
+  isPending: boolean;
+}) {
+  const [count, setCount] = useState(items.length);
+
+  return (
+    <div className="border border-[var(--border)] rounded-[12px] p-[20px] bg-card">
+      <div className="flex items-center justify-between mb-[16px]">
+        <h3 className="text-[16px] font-bold uppercase tracking-[0.5px] text-fg">
+          {title}
+        </h3>
+        <button
+          type="button"
+          onClick={() => setCount((c) => c + 1)}
+          className="text-xs font-bold text-accent hover:text-accent-hover no-underline"
+        >
+          + Add
+        </button>
+      </div>
+      {[...Array(count)].map((_, i) => (
+        <div
+          key={i}
+          className="grid grid-cols-1 md:grid-cols-2 gap-[12px] mb-[12px] p-[12px] border border-[var(--border)] rounded-[10px] bg-white/3"
+        >
+          <TextField
+            key="label"
+            label={`Feature ${i + 1}`}
+            name={`${section}-${i}`}
+            defaultValue={items[i] ?? ''}
+            showSaveIcon={false}
+          />
+          <div className="col-span-full flex justify-end pt-[2px]">
+            {rowIsDirty(`${section}-${i}-`) && <SaveIcon disabled={isPending} />}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
