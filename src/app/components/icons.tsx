@@ -128,6 +128,30 @@ export const HaulingIcon: FC<IconProps> = ({ className }) => (
     </svg>
 );
 
+export const TilingIcon: FC<IconProps> = ({ className }) => (
+    <svg
+        className={className}
+        width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        {/* Tile grid */}
+        <rect x="2" y="2" width="6" height="6" stroke="currentColor" strokeWidth="2" />
+        <rect x="10" y="2" width="6" height="6" stroke="currentColor" strokeWidth="2" />
+        <rect x="18" y="2" width="4" height="6" stroke="currentColor" strokeWidth="2" />
+        <rect x="2" y="10" width="6" height="6" stroke="currentColor" strokeWidth="2" />
+        <rect x="10" y="10" width="6" height="6" stroke="currentColor" strokeWidth="2" />
+        <rect x="18" y="10" width="4" height="6" stroke="currentColor" strokeWidth="2" />
+        <rect x="2" y="18" width="6" height="4" stroke="currentColor" strokeWidth="2" />
+        <rect x="10" y="18" width="6" height="4" stroke="currentColor" strokeWidth="2" />
+        <rect x="18" y="18" width="4" height="4" stroke="currentColor" strokeWidth="2" />
+    </svg>
+);
+
 export const ChevronLeft: FC<IconProps> = ({ className }) => (
     <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M15 18l-6-6 6-6" />

@@ -11,6 +11,7 @@ import {
     GeneralRepairsIcon,
     PlumbingIcon,
     HaulingIcon,
+    TilingIcon,
     ChevronLeft,
     ChevronRight,
     CheckIcon,
@@ -23,6 +24,7 @@ const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
     'general-repairs': GeneralRepairsIcon,
     plumbing: PlumbingIcon,
     hauling: HaulingIcon,
+    tiling: TilingIcon,
 };
 
 const ServiceIcon = ({ value, className }: { value: string; className?: string }) => {

@@ -59,7 +59,7 @@ export default function Gallery({ projects }: GalleryProps) {
                             'transition-all duration-700 ease-out'
                         )}
                     >
-                        Recent handyman work around the Franklin area — done right the first time. As a fellow Meade of Avalon resident, I love helping neighbors tackle everything from quick repairs to weekend to-do lists. Take a look at some recent local projects below, and feel free to reach out anytime you need an extra set of hands around the house.
+                        Recent Handy Sam work around the Franklin area — done right the first time. As a fellow Meade of Avalon resident, I love helping neighbors tackle everything from quick repairs to weekend to-do lists. Take a look at some recent local projects below, and feel free to reach out anytime you need an extra set of hands around the house.
 
                     </p>
                 </div>
@@ -115,11 +115,10 @@ export default function Gallery({ projects }: GalleryProps) {
                                             className="text-[13px] leading-1.4 mb-[10px] opacity-90"
                                             style={{
                                                 display: '-webkit-box',
-                                                WebkitBoxOrient: 'vertical',
-                                                WebkitLineClamp: 6,
+                                                WebkitBoxOrient: 'vertical', 
                                                 overflow: 'hidden',
-                                                minHeight: '110px',
-                                                maxHeight: '110px',
+                                                minHeight: '50px',
+                                                maxHeight: '50px',
                                             }}
                                         >
                                             {item.subDescription}

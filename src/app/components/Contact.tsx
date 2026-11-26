@@ -20,7 +20,7 @@ export default function Contact({ availableServices }: ContactProps) {
                     Get In Touch With Sam
                 </h2>
                 <p className="text-muted text-left mb-[24px] leading-1.6 text-[16px]">
-                    Ready to book a service or have a question? Fill out the form below and we&apos;ll get back to you right away.
+                    Ready to book a service or have a question? Fill out the form below and Sam will get back to you right away.
                 </p>
                 <form id="contact-form" className="flex flex-col gap-[20px] max-w-[1100px]">
                     <div className="flex flex-col gap-[20px] max-w-[1050px]">
