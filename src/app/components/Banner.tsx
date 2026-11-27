@@ -142,14 +142,59 @@ const Banner: React.FC = () => {
                 )}
                 aria-label="Primary"
             >
-                {/* Mobile: hamburger + phone on the left, logo on the right */}
+                {/* Desktop: phone left, nav centered, logo right */}
                 <div className="flex items-center justify-between w-full px-5">
+                    <a
+                        href="tel:9016748876"
+                        className="hidden md:flex items-center gap-[0.55rem] py-[0.45rem] px-[0.8rem] border border-white/9 rounded-full bg-white/2 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] text-accent font-bold tracking-[0.06em] uppercase text-[0.7rem] no-underline"
+                    >
+                        <span className="flex items-center justify-center w-[0.95rem] h-[0.95rem] text-current"><NavigationIcon type="phone" /></span>
+                        901-674-8876
+                    </a>
+
+                    <ul className="hidden md:flex justify-center gap-[0.7rem] gap-[0.8rem] list-none m-0 p-0 flex-1">
+                        {navItems.map((item) => {
+                            const active = isActive(item.id);
+                            return (
+                                <li key={item.id}>
+                                    <a
+                                        href={item.href}
+                                        className={cn(
+                                            'relative inline-flex items-center gap-[0.45rem] py-[0.55rem] px-[0.9rem] border border-white/9 rounded-full bg-white/1.5 text-white/76 no-underline text-[0.72rem] font-semibold tracking-[0.09em] uppercase',
+                                            'transition-all duration-200 ease-out',
+                                            active
+                                                ? 'border-accent/50 bg-gradient-to-b from-accent/8 to-accent/2.5 text-accent -translate-y-[1px] shadow-[0_10px_24px_rgba(245,158,11,0.08)]'
+                                                : '',
+                                            'hover:border-accent/50 hover:bg-gradient-to-b hover:from-accent/8 hover:to-accent/2.5 hover:text-accent hover:-translate-y-[1px] hover:shadow-[0_10px_24px_rgba(245,158,11,0.08)]'
+                                        )}
+                                    >
+                                        <span className="flex items-center justify-center w-[0.95rem] h-[0.95rem] text-current"><NavigationIcon type={item.icon} /></span>
+                                        {item.label}
+                                    </a>
+                                </li>
+                            );
+                        })}
+                    </ul>
+
+                    <div className={cn(
+                        'hidden md:block',
+                        'text-[1.02rem] font-black text-fg tracking-[-0.04em]',
+                        'pointer-events-none opacity-0 invisible',
+                        'transition-all duration-200',
+                        scrolled && 'opacity-100 visible delay-[80ms]'
+                    )}>
+                        Handy Sam
+                    </div>
+                </div>
+
+                {/* Mobile: hamburger left, logo right when menu closed */}
+                <div className="md:hidden flex items-center justify-between w-full px-5">
                     <button
                         type="button"
                         onClick={() => setMobileMenuOpen((prev) => !prev)}
                         aria-expanded={mobileMenuOpen}
                         aria-label="Open menu"
-                        className="md:hidden flex items-center justify-center w-[2.4rem] h-[2.4rem] rounded-full bg-white/2 border border-white/10 text-white hover:bg-white/5 transition-colors"
+                        className="flex items-center justify-center w-[2.4rem] h-[2.4rem] rounded-full bg-white/2 border border-white/10 text-white hover:bg-white/5 transition-colors"
                     >
                         <svg
                             className="w-[1.1rem] h-[1.1rem] text-current"
@@ -176,29 +221,7 @@ const Banner: React.FC = () => {
                         </svg>
                     </button>
 
-                    <a
-                        href="tel:9016748876"
-                        className="hidden md:flex items-center gap-[0.55rem] py-[0.45rem] px-[0.8rem] border border-white/9 rounded-full bg-white/2 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] text-accent font-bold tracking-[0.06em] uppercase text-[0.7rem] no-underline"
-                    >
-                        <span className="flex items-center justify-center w-[0.95rem] h-[0.95rem] text-current"><NavigationIcon type="phone" /></span>
-                        901-674-8876
-                    </a>
-
                     <div className={cn(
-                        'absolute top-1/2 -translate-y-1/2',
-                        'text-[1.02rem] font-black text-fg tracking-[-0.04em]',
-                        'pointer-events-none opacity-0 invisible',
-                        'transition-all duration-200',
-                        scrolled && 'opacity-100 visible delay-[80ms]',
-                        'md:left-[1.25rem]',
-                        mobileMenuOpen && 'hidden'
-                    )}>
-                        Handy Sam
-                    </div>
-
-                    {/* Mobile logo on right when menu closed */}
-                    <div className={cn(
-                        'md:hidden',
                         'text-[1.02rem] font-black text-fg tracking-[-0.04em]',
                         mobileMenuOpen ? 'hidden' : 'visible',
                         'transition-opacity duration-200'
@@ -206,31 +229,6 @@ const Banner: React.FC = () => {
                         Handy Sam
                     </div>
                 </div>
-
-                {/* Desktop horizontal nav links */}
-                <ul className="hidden md:flex justify-center gap-[0.7rem] gap-[0.8rem] list-none m-0 p-0">
-                    {navItems.map((item) => {
-                        const active = isActive(item.id);
-                        return (
-                            <li key={item.id}>
-                                <a
-                                    href={item.href}
-                                    className={cn(
-                                        'relative inline-flex items-center gap-[0.45rem] py-[0.55rem] px-[0.9rem] border border-white/9 rounded-full bg-white/1.5 text-white/76 no-underline text-[0.72rem] font-semibold tracking-[0.09em] uppercase',
-                                        'transition-all duration-200 ease-out',
-                                        active
-                                            ? 'border-accent/50 bg-gradient-to-b from-accent/8 to-accent/2.5 text-accent -translate-y-[1px] shadow-[0_10px_24px_rgba(245,158,11,0.08)]'
-                                            : '',
-                                        'hover:border-accent/50 hover:bg-gradient-to-b hover:from-accent/8 hover:to-accent/2.5 hover:text-accent hover:-translate-y-[1px] hover:shadow-[0_10px_24px_rgba(245,158,11,0.08)]'
-                                    )}
-                                >
-                                    <span className="flex items-center justify-center w-[0.95rem] h-[0.95rem] text-current"><NavigationIcon type={item.icon} /></span>
-                                    {item.label}
-                                </a>
-                            </li>
-                        );
-                    })}
-                </ul>
 
                 {/* Mobile bottom sheet menu */}
                 {mobileMenuOpen && (
