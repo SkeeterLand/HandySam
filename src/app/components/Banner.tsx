@@ -232,36 +232,41 @@ const Banner: React.FC = () => {
                     })}
                 </ul>
 
-                {/* Mobile vertical menu overlay */}
+                {/* Mobile slide-out drawer */}
                 {mobileMenuOpen && (
-                    <div
-                        className="fixed inset-0 z-[60] bg-[#0a0a0f]/98 backdrop-blur-md"
-                        onClick={() => setMobileMenuOpen(false)}
-                    >
-                        <div className="absolute top-0 right-0 p-6">
-                            <button
-                                type="button"
-                                onClick={() => setMobileMenuOpen(false)}
-                                aria-label="Close menu"
-                                className="flex items-center justify-center w-[2.4rem] h-[2.4rem] rounded-full bg-white/10 border border-white/10 text-white hover:bg-white/5 transition-colors"
-                            >
-                                <svg
-                                    className="w-[1.1rem] h-[1.1rem] text-current"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    aria-hidden="true"
+                    <>
+                        <div
+                            className="fixed inset-0 z-[55] bg-black/40 backdrop-blur-sm"
+                            onClick={() => setMobileMenuOpen(false)}
+                            aria-hidden="true"
+                        />
+                        <aside
+                            className="fixed inset-y-0 right-0 z-[60] w-[280px] max-w-full bg-[#0a0a0f] border-l border-white/10 shadow-[-20px_0_60px_rgba(0,0,0,0.5)] flex flex-col"
+                            aria-label="Mobile navigation"
+                        >
+                            <div className="flex items-center justify-between px-[20px] py-[16px] border-b border-white/10">
+                                <button
+                                    type="button"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    aria-label="Close menu"
+                                    className="flex items-center justify-center w-[2.4rem] h-[2.4rem] rounded-full bg-white/10 border border-white/10 text-white hover:bg-white/5 transition-colors"
                                 >
-                                    <line x1="18" y1="6" x2="6" y2="18" />
-                                    <line x1="6" y1="6" x2="18" y2="18" />
-                                </svg>
-                            </button>
-                        </div>
-                        <div className="flex flex-col items-center justify-center min-h-screen pt-20 pb-12 px-6 text-center">
-                            <div className="flex flex-col gap-[1.5rem]">
+                                    <svg
+                                        className="w-[1.1rem] h-[1.1rem] text-current"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2.5"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        aria-hidden="true"
+                                    >
+                                        <line x1="18" y1="6" x2="6" y2="18" />
+                                        <line x1="6" y1="6" x2="18" y2="18" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <nav className="flex-1 overflow-y-auto p-[20px] space-y-[10px]">
                                 {navItems.map((item) => {
                                     const active = isActive(item.id);
                                     return (
@@ -270,7 +275,7 @@ const Banner: React.FC = () => {
                                             href={item.href}
                                             onClick={() => setMobileMenuOpen(false)}
                                             className={cn(
-                                                'flex items-center gap-[1rem] py-[1rem] px-[1.5rem] rounded-full border border-white/10 bg-white/5 text-white no-underline text-[1rem] font-semibold tracking-[0.06em] uppercase transition-colors w-full max-w-md',
+                                                'flex items-center gap-[10px] py-[12px] px-[14px] rounded-[12px] border border-transparent bg-white/5 text-white no-underline text-[0.9rem] font-semibold tracking-[0.05em] uppercase transition-colors',
                                                 active
                                                     ? 'bg-accent/20 border-accent/50 text-accent'
                                                     : 'hover:bg-white/10 hover:border-white/20'
@@ -283,14 +288,14 @@ const Banner: React.FC = () => {
                                 })}
                                 <a
                                     href="tel:9016748876"
-                                    className="mt-[1rem] flex items-center gap-[1rem] py-[1rem] px-[1.5rem] rounded-full border border-white/10 bg-white/5 text-accent no-underline text-[1rem] font-semibold tracking-[0.06em] uppercase transition-colors w-full max-w-md hover:bg-white/10 hover:border-white/20"
+                                    className="mt-[6px] flex items-center gap-[10px] py-[12px] px-[14px] rounded-[12px] border border-white/10 bg-white/5 text-accent no-underline text-[0.9rem] font-semibold tracking-[0.05em] uppercase transition-colors hover:bg-white/10 hover:border-white/20"
                                 >
                                     <span className="flex items-center justify-center w-[1.1rem] h-[1.1rem] text-current"><NavigationIcon type="phone" /></span>
                                     Call: 901-674-8876
                                 </a>
-                            </div>
-                        </div>
-                    </div>
+                            </nav>
+                        </aside>
+                    </>
                 )}
             </nav>
         </>
