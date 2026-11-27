@@ -40,7 +40,7 @@ const About: React.FC = () => {
                         'Light fixtures, fans, and outlet/switch replacements',
                         'Furniture assembly and TV mounting',
                         'Caulking, weatherstripping, and draft sealing',
-                        'Gutter cleaning and minor exterior repairs',
+                        'Minor exterior repairs and touch-ups',
                         'Punch-list work — the odd jobs nobody else will come out for',
                     ].map((service) => (
                         <li
